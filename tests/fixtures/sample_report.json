@@ -1,0 +1,58 @@
+{
+  "report_id": "vn-rates-2026-W26-TEST",
+  "period": {"week": 26, "year": 2026, "data_cutoff": "2026-06-26"},
+  "verdict": "TRUNG TÍNH",
+  "verdict_reason": "LNH ON giảm (dovish) nhưng LSTP 10Y tăng (hawkish) — hai đầu câu chuyện tiền tệ đi ngược chiều nhau tuần này.",
+  "stance_score": 0,
+  "group1_money_market": {
+    "interbank_on": {
+      "name_vi": "LNH Overnight",
+      "value_unit": "%/năm",
+      "values": [
+        {"week": "W23", "value": 1.45, "wow_pct": null},
+        {"week": "W24", "value": 1.38, "wow_pct": -4.83},
+        {"week": "W25", "value": 1.30, "wow_pct": -5.80},
+        {"week": "W26", "value": 1.20, "wow_pct": -7.69}
+      ],
+      "signal": "GREEN",
+      "streak": {"direction": "down", "weeks": 3},
+      "narrative": "LNH ON giảm 25bp trong 4 tuần, kéo dài chuỗi 3 tuần giảm — NHNN duy trì dồi dào thanh khoản ngắn hạn.",
+      "has_chart": true,
+      "chart_source": "sbv_interbank"
+    },
+    "interbank_1m": {
+      "name_vi": "LNH 1 tháng",
+      "value_unit": "%/năm",
+      "values": [
+        {"week": "W23", "value": 1.95, "wow_pct": null},
+        {"week": "W24", "value": 1.92, "wow_pct": -1.54},
+        {"week": "W25", "value": 1.90, "wow_pct": -1.04},
+        {"week": "W26", "value": 1.85, "wow_pct": -2.63}
+      ],
+      "signal": "GREEN",
+      "streak": {"direction": "down", "weeks": 3},
+      "narrative": "LNH 1M đồng hướng giảm cùng ON — curve liên ngân hàng dịch xuống.",
+      "has_chart": false,
+      "chart_source": null
+    }
+  },
+  "group2_bonds": {
+    "gov_10y_yield": {
+      "name_vi": "LSTP 10 năm",
+      "value_unit": "%",
+      "values": [
+        {"week": "W23", "value": 4.25, "wow_pct": null},
+        {"week": "W24", "value": 4.30, "wow_pct": 1.18},
+        {"week": "W25", "value": 4.37, "wow_pct": 1.63},
+        {"week": "W26", "value": 4.40, "wow_pct": 0.69}
+      ],
+      "signal": "RED",
+      "streak": {"direction": "up", "weeks": 4},
+      "narrative": "LSTP 10Y +15bp trong 4 tuần, kéo dài chuỗi tăng — giá tiền dài hạn đắt lên.",
+      "has_chart": true,
+      "chart_source": "hnx_yield_curve"
+    }
+  },
+  "group3_fx_global": {},
+  "group4_equities_vn": {}
+}

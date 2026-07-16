@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VN Rates Weekly · Thị trường Lãi suất & Tiền tệ</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-0:#0a0a14; --bg-1:#10101f; --bg-2:#16162a;
+  --card:rgba(28,28,48,0.55); --card-solid:#1a1a2e;
+  --border:rgba(139,92,246,0.18); --border-hot:rgba(236,72,153,0.35);
+  --text:#f0f0ff; --text-dim:#8b8ba7; --text-faint:#5a5a72;
+  --purple:#a855f7; --purple-2:#8b5cf6; --pink:#ec4899; --cyan:#06b6d4;
+  --green:#10d98a; --green-soft:rgba(16,217,138,0.15);
+  --red:#ff4d6d; --red-soft:rgba(255,77,109,0.15); --amber:#fbbf24; --amber-soft:rgba(251,191,36,0.15);
+  --grad-main:linear-gradient(135deg,#a855f7 0%,#ec4899 100%);
+  --grad-cool:linear-gradient(135deg,#06b6d4 0%,#8b5cf6 100%);
+  --grad-bg:radial-gradient(ellipse at 20% 0%,rgba(139,92,246,0.15) 0%,transparent 50%),
+            radial-gradient(ellipse at 80% 100%,rgba(236,72,153,0.12) 0%,transparent 50%);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--bg-0);color:var(--text);font-family:'Inter',sans-serif;line-height:1.5;overflow-x:hidden}
+body{background-image:var(--grad-bg);background-attachment:fixed;min-height:100vh}
+.mono{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+.container{max-width:1480px;margin:0 auto;padding:24px 32px 80px}
+.pos{color:var(--green)} .neg{color:var(--red)} .neu{color:var(--amber)}
+
+/* HERO — có ảnh nền Unsplash + overlay */
+.hero{background:linear-gradient(135deg,rgba(10,10,20,0.88) 0%,rgba(28,28,48,0.78) 50%,rgba(168,85,247,0.35) 100%),
+  url('https://images.unsplash.com/photo-1528127269322-539801943592?w=1600&q=80&fit=crop') center/cover;
+  border:1px solid var(--border);border-radius:32px;padding:36px 44px;margin-bottom:20px;
+  position:relative;overflow:hidden;backdrop-filter:blur(20px)}
+.hero::before{content:'';position:absolute;top:-100px;right:-50px;width:400px;height:400px;
+  background:radial-gradient(circle,rgba(236,72,153,0.25),transparent 70%);filter:blur(40px)}
+.hero-credit{position:absolute;bottom:8px;right:14px;font-size:9px;color:rgba(240,240,255,0.3);
+  letter-spacing:0.3px;z-index:3}
+.hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap;position:relative;z-index:2}
+.ticker-badge{display:inline-flex;align-items:center;gap:10px;background:var(--grad-main);color:#fff;
+  padding:6px 16px;border-radius:999px;font-weight:700;font-size:13px;letter-spacing:0.5px;
+  box-shadow:0 8px 24px rgba(168,85,247,0.4)}
+.update-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(16,217,138,0.15);color:var(--green);
+  padding:4px 12px;border-radius:999px;font-weight:600;font-size:11px;border:1px solid rgba(16,217,138,0.3);margin-left:8px}
+.report-title{font-size:38px;font-weight:800;margin-top:14px;letter-spacing:-1px;
+  background:linear-gradient(90deg,#fff,#c4b5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.report-sub{color:var(--text-dim);margin-top:6px;font-size:14px}
+.verdict-block{text-align:right}
+.verdict-badge{display:inline-block;padding:8px 20px;border-radius:999px;font-weight:800;
+  font-size:13px;letter-spacing:0.5px;background:var(--amber);color:#000}
+.verdict-reason{color:var(--text-dim);font-size:12px;margin-top:8px;line-height:1.5;max-width:340px}
+.kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:28px;position:relative;z-index:2}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px;backdrop-filter:blur(12px)}
+.kpi-label{font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.kpi-value{font-size:26px;font-weight:800;margin-top:4px}
+.kpi-delta{font-size:11px;margin-top:3px;color:var(--text-dim)}
+.flag-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.flag-green{background:var(--green)} .flag-red{background:var(--red)} .flag-amber{background:var(--amber)}
+
+/* NAV */
+.nav-tabs{position:sticky;top:0;z-index:50;display:flex;gap:8px;
+  background:rgba(10,10,20,0.85);backdrop-filter:blur(20px);
+  padding:14px 32px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  margin:0 -32px 28px;border-radius:0}
+.nav-tab{background:transparent;border:1px solid transparent;color:var(--text-dim);
+  padding:9px 18px;border-radius:10px;font-weight:600;font-size:13px;cursor:pointer;
+  transition:all .2s;font-family:'Inter',sans-serif}
+.nav-tab:hover{color:var(--text);background:rgba(168,85,247,0.08)}
+.nav-tab.active{background:var(--grad-main);color:#fff;box-shadow:0 4px 16px rgba(168,85,247,0.4)}
+
+/* GROUP SECTION */
+.group-section{display:none;animation:fadeUp .4s ease both}
+.group-section.active{display:block}
+.group-header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.group-header h2{font-size:22px;font-weight:700;letter-spacing:-0.5px}
+.group-header .tag{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  padding:4px 10px;border-radius:6px;color:#fff}
+.tag.g1{background:var(--purple)} .tag.g2{background:var(--pink)}
+.tag.g3{background:var(--cyan);color:#000} .tag.g4{background:var(--green);color:#000}
+.divider-line{flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+
+/* HIGHLIGHTS */
+.highlights{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.highlight-box{border-radius:18px;padding:18px 22px;backdrop-filter:blur(12px)}
+.highlight-box.neg{background:var(--red-soft);border:1px solid rgba(255,77,109,0.3)}
+.highlight-box.pos{background:var(--green-soft);border:1px solid rgba(16,217,138,0.3)}
+.hl-label{font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:10px}
+.highlight-box.neg .hl-label{color:var(--red)}
+.highlight-box.pos .hl-label{color:var(--green)}
+.hl-items{list-style:none;padding:0;margin:0}
+.hl-items li{font-size:13px;color:var(--text-dim);padding:5px 0;line-height:1.5;
+  border-bottom:1px solid rgba(255,255,255,0.04)}
+.hl-items li:last-child{border-bottom:none}
+.hl-items li::before{content:'▸ ';color:var(--text-faint)}
+.hl-val{font-weight:700;font-family:'JetBrains Mono',monospace}
+
+/* DATA CARD — DÀY HƠN */
+.data-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.data-card{background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:16px 18px;backdrop-filter:blur(12px);transition:transform .2s,border-color .2s;
+  display:flex;flex-direction:column;gap:6px}
+.data-card:hover{transform:translateY(-2px);border-color:var(--border-hot)}
+.data-card.signal-red{border-left:3px solid var(--red)}
+.data-card.signal-green{border-left:3px solid var(--green)}
+.data-card.signal-amber{border-left:3px solid var(--amber)}
+.data-card.wide{grid-column:1 / -1}
+@media (max-width:600px){.data-card.wide{grid-column:span 1}}
+.dc-head{display:flex;justify-content:space-between;align-items:center}
+.dc-name{font-size:12px;color:var(--text-dim);font-weight:600}
+.dc-flag{font-size:11px}
+.dc-value{font-size:26px;font-weight:800;line-height:1.1}
+.dc-value .dc-unit{font-size:13px;color:var(--text-dim);font-weight:500;margin-left:3px}
+.dc-target-row{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-faint);margin-top:2px}
+.dc-target-badge{display:inline-block;padding:2px 7px;border-radius:5px;font-weight:700;font-size:10px}
+.dc-target-badge.over{background:var(--red-soft);color:var(--red)}
+.dc-target-badge.met{background:var(--green-soft);color:var(--green)}
+.dc-meta{display:flex;gap:12px;font-size:11px;color:var(--text-faint);flex-wrap:wrap;margin-top:2px}
+.dc-meta span strong{color:var(--text-dim)}
+.dc-progress{height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;margin-top:6px}
+.dc-progress-fill{height:100%;border-radius:3px}
+.dc-progress-fill.over{background:var(--red)}
+.dc-progress-fill.met{background:var(--green)}
+.dc-progress-fill.amber{background:var(--amber)}
+.dc-why{font-size:11px;color:var(--text-dim);line-height:1.5;margin-top:6px;
+  padding:7px 10px;background:rgba(168,85,247,0.05);border-left:2px solid var(--purple);border-radius:4px}
+.dc-why::before{content:'💡 ';filter:none}
+
+/* NARRATIVE — kể chuyện số liệu (2-4 câu, tone người kể chuyện) */
+.dc-narrative{font-size:12px;color:var(--text);line-height:1.7;margin-top:8px;
+  padding:11px 13px;background:linear-gradient(135deg,rgba(6,182,212,0.09),rgba(168,85,247,0.05));
+  border-left:3px solid var(--cyan);border-radius:6px}
+.dc-narrative strong{color:var(--purple);font-weight:600}
+.dc-narrative .num{color:var(--cyan);font-weight:600;font-family:'JetBrains Mono',monospace}
+.dc-chart-btn{margin-top:8px;background:rgba(168,85,247,0.12);color:var(--purple);
+  border:1px solid rgba(168,85,247,0.25);padding:5px 12px;border-radius:8px;
+  font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;align-self:flex-start}
+.dc-chart-btn:hover{background:rgba(168,85,247,0.25)}
+
+/* NEWS ENRICHMENT — tin báo chí embed trong card */
+.dc-news{margin-top:8px;border-top:1px dashed rgba(139,92,246,0.15);padding-top:8px}
+.dc-news-item{padding:8px 10px;background:rgba(20,20,40,0.4);border-radius:8px;margin-bottom:6px;
+  border-left:2px solid var(--cyan);font-size:11px;line-height:1.5}
+.dc-news-item:last-child{margin-bottom:0}
+.dc-news-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:3px}
+.dc-news-title{color:var(--text);font-weight:600}
+.dc-news-title a{color:var(--cyan);text-decoration:none}
+.dc-news-title a:hover{text-decoration:underline}
+.dc-news-meta{font-size:10px;color:var(--text-faint);flex-shrink:0}
+.dc-news-insight{color:var(--text-dim);font-size:11px;margin-top:3px}
+.dc-news-insight::before{content:'💡 '}
+.dc-news-quote{margin-top:5px;padding:5px 8px;background:rgba(168,85,247,0.08);
+  border-left:2px solid var(--purple);border-radius:4px;font-style:italic;color:var(--text-dim);font-size:11px}
+.dc-news-quote .author{display:block;margin-top:3px;font-style:normal;font-weight:600;color:var(--purple);font-size:10px}
+.dc-news-sentiment{display:inline-block;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700;margin-left:4px}
+.dc-news-sentiment.TÍCH{background:var(--green-soft);color:var(--green)}
+.dc-news-sentiment.TRUNG{background:var(--amber-soft);color:var(--amber)}
+.dc-news-sentiment.TIÊU{background:var(--red-soft);color:var(--red)}
+
+/* SPECIAL INSIGHT — phân tích chuyên sâu chủ đề (có banner ảnh) */
+.special-insight{background:linear-gradient(135deg,rgba(168,85,247,0.08),rgba(236,72,153,0.04));
+  border:1px solid var(--border-hot);border-radius:20px;padding:24px 26px;
+  backdrop-filter:blur(14px);margin-bottom:24px;grid-column:1 / -1;position:relative;overflow:hidden}
+.special-insight::before{content:'';position:absolute;top:-60px;right:-30px;width:250px;height:250px;
+  background:radial-gradient(circle,rgba(168,85,247,0.15),transparent 70%);filter:blur(30px)}
+
+/* Insight banner ảnh */
+.si-banner{height:140px;border-radius:14px;margin-bottom:16px;position:relative;overflow:hidden;
+  background-size:cover;background-position:center}
+.si-banner-overlay{position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(10,10,20,0.55) 0%,rgba(168,85,247,0.3) 100%)}
+.si-banner-content{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;
+  padding:18px 22px;z-index:2}
+.si-banner-credit{position:absolute;top:8px;right:12px;font-size:9px;color:rgba(240,240,255,0.4);z-index:3}
+.si-label{display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:800;
+  letter-spacing:1.5px;text-transform:uppercase;color:var(--pink);
+  background:rgba(236,72,153,0.15);padding:5px 12px;border-radius:6px;margin-bottom:10px;position:relative;z-index:2}
+.si-title{font-size:20px;font-weight:800;letter-spacing:-0.5px;line-height:1.3;
+  margin-bottom:10px;position:relative;z-index:2}
+.si-summary{font-size:13px;color:var(--text-dim);line-height:1.6;margin-bottom:16px;
+  padding-bottom:14px;border-bottom:1px dashed rgba(139,92,246,0.15);position:relative;z-index:2}
+.si-section-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:var(--cyan);margin:14px 0 8px;display:flex;align-items:center;gap:6px;position:relative;z-index:2}
+.si-numbers{font-size:13px;color:var(--text);line-height:1.75;position:relative;z-index:2}
+.si-numbers strong{color:var(--purple);font-weight:600}
+.si-numbers .num{color:var(--cyan);font-weight:600;font-family:'JetBrains Mono',monospace}
+/* Layout 2 cột cho body insight: cột trái numbers, cột phải news (xếp dọc) */
+.si-body{display:grid;grid-template-columns:1.4fr 1fr;gap:24px;position:relative;z-index:2}
+.si-body .si-col-left{min-width:0}
+.si-body .si-col-right{min-width:0;display:flex;flex-direction:column;gap:10px}
+@media (max-width:1100px){.si-body{grid-template-columns:1fr;gap:16px}}
+.si-news-grid{display:grid;grid-template-columns:1fr;gap:10px;position:relative;z-index:2}
+.si-news-item{padding:10px 12px;background:rgba(20,20,40,0.5);border-radius:10px;
+  border-left:2px solid var(--cyan);font-size:11px;line-height:1.5}
+.si-news-head{display:flex;justify-content:space-between;align-items:baseline;gap:6px;margin-bottom:4px}
+.si-news-title{color:var(--text);font-weight:600}
+.si-news-title a{color:var(--cyan);text-decoration:none}
+.si-news-title a:hover{text-decoration:underline}
+.si-news-meta{font-size:10px;color:var(--text-faint);flex-shrink:0}
+.si-news-insight{color:var(--text-dim);font-size:11px;margin-top:3px}
+.si-news-insight::before{content:'💡 '}
+.si-news-sentiment{display:inline-block;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700;margin-left:4px}
+.si-news-sentiment.TÍCH{background:var(--green-soft);color:var(--green)}
+.si-news-sentiment.TRUNG{background:var(--amber-soft);color:var(--amber)}
+.si-news-sentiment.TIÊU{background:var(--red-soft);color:var(--red)}
+.si-cross{display:flex;flex-direction:column;gap:6px;position:relative;z-index:2}
+.si-cross-item{padding:7px 10px;background:rgba(6,182,212,0.06);border-left:2px solid var(--cyan);
+  border-radius:4px;font-size:11px;color:var(--text-dim);line-height:1.5}
+.si-cross-item::before{content:'🔗 ';color:var(--cyan)}
+/* Cross-story prose (thay cho liệt kê) */
+.si-cross-story{font-size:13px;color:var(--text);line-height:1.75;padding:14px 16px;
+  background:linear-gradient(135deg,rgba(6,182,212,0.08),rgba(168,85,247,0.04));
+  border-left:3px solid var(--cyan);border-radius:10px}
+.si-cross-story strong{color:var(--purple);font-weight:600}
+.si-cross-story .num{color:var(--cyan);font-weight:600;font-family:'JetBrains Mono',monospace}
+
+/* PANEL — phân tích chuyên sâu */
+.panel{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px;
+  backdrop-filter:blur(14px);margin-bottom:14px;grid-column:1 / -1}
+.panel-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.panel-title{font-size:15px;font-weight:700}
+.panel-note{font-size:11px;color:var(--text-faint);margin-left:auto}
+.panel-table{width:100%;border-collapse:collapse;font-size:12px}
+.panel-table th{text-align:left;padding:8px 10px;color:var(--text-faint);font-weight:600;
+  font-size:10px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border)}
+.panel-table td{padding:8px 10px;border-bottom:1px solid rgba(139,92,246,0.06);vertical-align:middle}
+.panel-table tr:hover{background:rgba(168,85,247,0.04)}
+.panel-tag{display:inline-block;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:700}
+.panel-tag.TÍCH{background:var(--green-soft);color:var(--green)}
+.panel-tag.TRUNG{background:var(--amber-soft);color:var(--amber)}
+.panel-tag.TIÊU{background:var(--red-soft);color:var(--red)}
+.panel-arrow{font-size:14px}
+.panel-trend{font-size:11px;color:var(--text-dim);margin-top:10px;padding:8px 12px;
+  background:rgba(251,191,36,0.06);border-radius:8px}
+
+/* PMI sub-indices grid */
+.pmi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.pmi-item{background:rgba(20,20,40,0.4);border:1px solid var(--border);border-radius:10px;padding:10px}
+.pmi-item .name{font-size:11px;color:var(--text-dim);font-weight:600}
+.pmi-item .arr{font-size:18px;margin-top:3px}
+.pmi-item .note{font-size:10px;color:var(--text-faint);margin-top:3px;line-height:1.4}
+.pmi-item.up{border-left:3px solid var(--green)}
+.pmi-item.down{border-left:3px solid var(--red)}
+
+/* Yield curve mini chart */
+.yield-curve-wrap{height:140px;margin-top:10px}
+
+/* SECTION TITLE */
+.section-title{display:flex;align-items:center;gap:12px;margin:44px 0 20px}
+.section-title h2{font-size:22px;font-weight:700;letter-spacing:-0.5px}
+
+/* Bảng cũ (giữ fallback, ẩn đi) */
+.xcheck-table{display:none}
+
+/* RISKS / CATALYSTS */
+.rc-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.rc-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:22px;backdrop-filter:blur(14px)}
+.rc-box.risks{border-left:3px solid var(--red)}
+.rc-box.catalysts{border-left:3px solid var(--green)}
+.rc-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.rc-item{padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px;color:var(--text-dim);line-height:1.5}
+.rc-item:last-child{border-bottom:none}
+.rc-level{display:inline-block;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;margin-right:8px;letter-spacing:0.3px}
+.rc-level.critical{background:rgba(255,77,109,0.2);color:var(--red)}
+.rc-level.high{background:rgba(251,191,36,0.2);color:var(--amber)}
+.rc-level.medium{background:rgba(139,92,246,0.2);color:var(--purple)}
+
+/* KEY TAKEAWAYS */
+.takeaways{background:linear-gradient(135deg,rgba(168,85,247,0.1),rgba(236,72,153,0.06));
+  border:1px solid var(--border-hot);border-radius:20px;padding:24px 28px;backdrop-filter:blur(14px)}
+.takeaways ol{list-style:none;padding:0;margin:0;counter-reset:tk}
+.takeaways li{counter-increment:tk;padding:10px 0 10px 32px;position:relative;font-size:14px;color:var(--text);line-height:1.6}
+.takeaways li::before{content:counter(tk);position:absolute;left:0;top:10px;
+  width:22px;height:22px;background:var(--grad-main);color:#fff;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}
+.takeaways li:first-child::before{background:var(--amber);color:#000}
+
+/* MODAL */
+.modal{display:none;position:fixed;inset:0;background:rgba(10,10,20,0.8);backdrop-filter:blur(8px);
+  z-index:100;padding:40px 20px;overflow:auto}
+.modal.active{display:flex;align-items:center;justify-content:center}
+.modal-content{background:var(--card-solid);border:1px solid var(--border-hot);
+  border-radius:20px;padding:28px;max-width:680px;width:100%;backdrop-filter:blur(20px)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.modal-head h3{font-size:18px;font-weight:700}
+.modal-close{background:rgba(255,255,255,0.08);border:none;color:var(--text);
+  width:32px;height:32px;border-radius:50%;font-size:20px;cursor:pointer;line-height:1}
+.modal-close:hover{background:rgba(255,77,109,0.2)}
+.modal-chart-wrap{position:relative;height:280px;margin-bottom:12px}
+
+/* FOOTER */
+footer{margin-top:60px;padding-top:24px;border-top:1px solid var(--border);
+  color:var(--text-faint);font-size:12px;text-align:center;line-height:1.8}
+footer a{color:var(--purple);text-decoration:none}
+.disclaimer{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.2);
+  border-radius:14px;padding:14px 18px;margin-top:24px;font-size:12px;color:var(--text-dim)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+@media (max-width:1100px){
+  .kpi-strip{grid-template-columns:repeat(2,1fr)}
+  .highlights{grid-template-columns:1fr}
+  .data-grid{grid-template-columns:repeat(2,1fr)}
+  .panel{grid-column:span 2}
+  .pmi-grid{grid-template-columns:repeat(2,1fr)}
+  .rc-grid{grid-template-columns:1fr}
+}
+@media (max-width:600px){
+  .container{padding:16px}
+  .hero{padding:24px;border-radius:20px}
+  .report-title{font-size:28px}
+  .kpi-strip{grid-template-columns:1fr}
+  .nav-tabs{flex-wrap:wrap;padding:10px 16px}
+  .data-grid{grid-template-columns:1fr}
+  .panel{grid-column:span 1}
+  .nav-tab{padding:7px 12px;font-size:12px}
+}
+
+/* === vn-rates-weekly specific === */
+.stance-gauge{display:flex;align-items:center;gap:16px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px 22px;margin:14px 0}
+.stance-gauge .gauge-track{flex:1;height:10px;border-radius:999px;background:linear-gradient(90deg,var(--red) 0%,var(--amber) 50%,var(--green) 100%);position:relative}
+.stance-gauge .gauge-needle{position:absolute;top:-5px;width:3px;height:20px;background:var(--text);border-radius:2px;transform:translateX(-50%);box-shadow:0 0 8px rgba(255,255,255,0.5)}
+.stance-gauge .gauge-label{font-size:10px;text-transform:uppercase;letter-spacing:0.05em;min-width:70px;font-weight:700}
+.stance-gauge .gauge-label.left{text-align:right;color:var(--red)}
+.stance-gauge .gauge-label.right{color:var(--green)}
+
+.wow-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0;padding:8px 6px;background:rgba(168,85,247,0.05);border-radius:10px}
+.wow-strip .wow-cell{text-align:center;padding:3px}
+.wow-strip .wow-cell .wow-week{font-size:9px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.04em}
+.wow-strip .wow-cell .wow-val{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums;display:block;margin-top:2px}
+.wow-strip .wow-cell.latest .wow-val{color:var(--purple)}
+.wow-strip .streak-badge{grid-column:1/-1;text-align:center;font-size:10px;padding:3px;font-weight:600;border-radius:6px}
+.wow-strip .streak-badge.up{color:var(--red);background:rgba(255,77,109,0.1)}
+.wow-strip .streak-badge.down{color:var(--green);background:rgba(16,217,138,0.1)}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-top">
+      <div>
+        <div>
+          <span class="ticker-badge">📊 VN RATES WEEKLY</span>
+          <span class="update-badge">✦ Tuần 26/2026</span>
+        </div>
+        <div class="report-title">Thị trường Lãi suất &amp; Tiền tệ</div>
+        <div class="report-sub">Kỳ báo cáo: 2026-W26 · Chốt dữ liệu: 26/06/2026 · 3 nguồn: SBV · VBMA · VNBA</div>
+      </div>
+      <div class="verdict-block">
+        <div class="verdict-badge">⚖️ THẮN CHẶT</div>
+        <div class="verdict-reason">LNH ON giảm mạnh 4 tuần nhưng LSTP 10Y tăng 3 tuần liên tiếp — giá tiền dài hạn đắt lên trong khi ngắn hạn đang rẻ lại.</div>
+      </div>
+    </div>
+    <div class="stance-gauge">
+      <span class="gauge-label left">HAWKISH</span>
+      <div class="gauge-track">
+        <div class="gauge-needle" id="stanceNeedle" style="left: 25%;"></div>
+      </div>
+      <span class="gauge-label right">DOVISH</span>
+    </div>
+    <div class="kpi-strip">
+      <div class="kpi">
+        <div class="kpi-label"><span class="flag-dot flag-red"></span>LSTP 10 năm</div>
+        <div class="kpi-value mono neg">4.40<span style="font-size:14px;color:var(--text-dim)">%</span></div>
+        <div class="kpi-delta neg">▲ +3 tuần tăng (hawkish) · +7bp 4 tuần</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label"><span class="flag-dot flag-green"></span>LNH Overnight</div>
+        <div class="kpi-value mono pos">4.26<span style="font-size:14px;color:var(--text-dim)">%</span></div>
+        <div class="kpi-delta pos">▼ -37% 4 tuần (dovish) · hồi nhẹ W26</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label"><span class="flag-dot flag-amber"></span>Tỷ giá TM USD/VND</div>
+        <div class="kpi-value mono">26.284</div>
+        <div class="kpi-delta">±0.1% vs trung tâm · ổn định</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label"><span class="flag-dot flag-amber"></span>DXY / US 10Y</div>
+        <div class="kpi-value mono">101.4 / 4.37%</div>
+        <div class="kpi-delta">Fed hawkish nhẹ · US 10Y giảm 7bp</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAV -->
+  <nav class="nav-tabs">
+    <button class="nav-tab active" data-target="group1">💰 Tiền tệ</button>
+    <button class="nav-tab" data-target="group2">📜 Trái phiếu</button>
+    <button class="nav-tab" data-target="group3">🌍 Ngoại hối &amp; TG</button>
+    <button class="nav-tab" data-target="group4">📈 CK &amp; VN</button>
+    <button class="nav-tab" data-target="group5">📊 Tổng hợp</button>
+  </nav>
+
+  <!-- GROUP 1 — KINH TẾ THỰC -->
+  <section class="group-section active" id="group1">
+    <div class="group-header">
+      <span class="tag g1">01</span>
+      <h2>Kinh tế thực — Động lực tăng trưởng &amp; lạm phát</h2>
+      <div class="divider-line"></div>
+      <span style="font-size:12px;color:var(--text-faint)">Nguồn: TCTK + Hải quan + S&amp;P PMI</span>
+    </div>
+
+    <div class="highlights">
+      <div class="highlight-box neg">
+        <div class="hl-label">🔴 TIÊU CỰC</div>
+        <ul class="hl-items">
+          <li>CPI YoY <span class="hl-val neg">5.60%</span> — vượt mục tiêu 4.5%</li>
+          <li>Cán cân thương mại <span class="hl-val neg">-13.8 tỷ USD</span> (đảo chiều từ xuất siêu 5.1 tỷ cùng kỳ 2025)</li>
+          <li>DN giải thể <span class="hl-val neg">+99.1% YoY</span> — áp lực kinh doanh lớn</li>
+        </ul>
+      </div>
+      <div class="highlight-box pos">
+        <div class="hl-label">🟢 TÍCH CỰC</div>
+        <ul class="hl-items">
+          <li>IIP <span class="hl-val pos">+8.8% YoY</span> — cao nhất 4 năm</li>
+          <li>FDI thực hiện <span class="hl-val pos">+9.6% YoY</span> — cao nhất 5 năm (9.75 tỷ USD)</li>
+          <li>PMI <span class="hl-val pos">52.8</span> — phục hồi mạnh, đỉnh 3 tháng</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="data-grid">
+      <!-- SPECIAL INSIGHT: CPI -->
+      <div class="special-insight">
+        <span class="si-label">🔬 phân tích chuyên sâu</span>
+        <div class="si-banner" style="background-image:url('https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&h=300&q=80&fit=crop')">
+        <div class="si-banner-overlay"></div>
+        <div class="si-banner-credit">📷 Unsplash</div>
+      </div>
+        <div class="si-title">🔥 Lạm phát: Khi CPI vượt mục tiêu tháng thứ 2 liên</div>
+        <div class="si-summary">CPI YoY 5.60% tiếp tục đứng trên mục tiêu Quốc hội 4.5% tháng thứ 2, với lạm phát cơ bản 4.67% cho thấy áp lực lan rộng không chỉ từ năng lượng.</div>
+
+        <div class="si-body">
+          <div class="si-col-left">
+            <div class="si-section-label">📊 Con số kể</div>
+            <div class="si-numbers">CPI YoY leo thang liên tục từ T1: <span class="num">2.53%</span> → <span class="num">3.35%</span> → <span class="num">4.65%</span> → <span class="num">5.46%</span> → <span class="num">5.60%</span> — đường cong dốc lên đều. Cùng lúc PMI Chi phí đầu vào đạt <strong>đỉnh 15 năm</strong> (từ 4/2011), PMI Giá đầu ra ở top 15 năm — 2 sub-indices này cho thấy DN đang chuyển chi phí sang người tiêu dùng. Lạm phát cơ bản <span class="num">4.67%</span> (loại năng lượng + thực phẩm) đã gần với lạm phát tiêu dùng <span class="num">5.60%</span>, khoảng cách hẹp lại cho thấy áp lực lan rộng.</div>
+          </div>
+          <div class="si-col-right">
+            <div class="si-section-label">📰 Tin &amp; phân tích (3 nguồn)</div>
+            <div class="si-news-grid">
+              <div class="si-news-item">
+                <div class="si-news-head"><div class="si-news-title"><a href="https://vneconomy.vn/cpi-thang-5-tang-029-ap-luc-tu-gia-dien-nuoc-va-xang-dau-mua-nang-nong.htm" target="_blank">CPI tháng 5 tăng 0,29%: Áp lực từ giá điện, nước, xăng dầu</a><span class="si-news-sentiment TIÊU">TIÊU</span></div><div class="si-news-meta">VnEconomy · 03/06</div></div>
+                <div class="si-news-insight">Thời tiết nắng nóng đẩy giá điện + nước, cùng giá xăng dầu và vật liệu xây — bù trừ giảm của lương thực.</div>
+              </div>
+              <div class="si-news-item">
+                <div class="si-news-head"><div class="si-news-title"><a href="https://vneconomy.vn/hai-kich-ban-moi-cho-lam-phat-nam-2026-dua-tren-trien-vong-gia-dau.htm" target="_blank">2 kịch bản lạm phát 2026 dựa trên giá dầu</a><span class="si-news-sentiment TRUNG">TRUNG</span></div><div class="si-news-meta">VnEconomy · 06/2026</div></div>
+                <div class="si-news-insight">Cơ sở (70%): Brent 90-95 USD → CPI 2026 ≈ 4,8%. Rủi ro: dầu trên 100 USD → CPI vượt 5%.</div>
+              </div>
+              <div class="si-news-item">
+                <div class="si-news-head"><div class="si-news-title"><a href="https://thoibaotaichinhvietnam.vn/thang-5-10-nhom-hang-tang-gia-luong-thuc-thuc-pham-nguoc-dong-giam-198467.html" target="_blank">10 nhóm hàng tăng giá tháng 5, lương thực đi ngược</a><span class="si-news-sentiment TIÊU">TIÊU</span></div><div class="si-news-meta">TT Tài chính · 04/06</div></div>
+                <div class="si-news-insight">10/11 nhóm tăng, chỉ lương thực giảm — áp lực lan rộng, không cục bộ.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="si-section-label">🔗 Góc nhìn rộng hơn</div>
+        <div class="si-cross-story">PMI Chi phí đầu vào đạt đỉnh 15 năm cho thấy áp lực chi phí đang tích tụ phía DN — và CPI YoY <span class="num">5.60%</span> (vượt mục tiêu 4.5%) cho thấy chi phí đó đã bắt đầu truyền sang người tiêu dùng, không còn dừng lại ở doanh nghiệp. Cùng lúc, Fed duy trì "higher-for-longer" và giá Brent <span class="num">92 USD</span>/thùng giữ áp lực lạm phát nhập khẩu còn nguyên qua Q3-Q4. <strong>Ba dòng — chi phí DN, giá tiêu dùng, lạm phát nhập — cùng đi cùng hướng.</strong></div>
+      </div>
+
+      <!-- CPI data card -->
+      <div class="data-card signal-red wide">
+        <div class="dc-head"><span class="dc-name">CPI YoY</span><span class="dc-flag">🔴</span></div>
+        <div class="dc-value mono neg">5.60<span class="dc-unit">%</span></div>
+        <div class="dc-target-row">
+          <span class="dc-target-badge over">VƯỢT +1.10đđ</span>
+          <span>mục tiêu 4.5%</span>
+        </div>
+        <div class="dc-progress"><div class="dc-progress-fill over" style="width:100%"></div></div>
+        <div class="dc-meta">
+          <span>MoM <strong class="mono">+0.29%</strong></span>
+          <span>lũy kế <strong class="mono">4.31%</strong></span>
+          <span>cơ bản <strong class="mono">4.67%</strong></span>
+        </div>
+        <div class="dc-why">CPI đã VƯỢT mục tiêu Quốc hội 4.5% — lạm phát hiện hữu. Lạm phát cơ bản 4.67% cho thấy áp lực lan rộng, không chỉ năng lượng.</div>
+        <div class="dc-narrative">
+          CPI YoY <span class="num">5.60%</span> đã đứng trên mục tiêu Quốc hội <span class="num">4.5%</span> tháng thứ 2 liên tiếp (T4: 5.46%, T5: 5.60%). Cùng lúc PMI Chi phí đầu vào đạt <strong>đỉnh 15 năm</strong> (từ 4/2011) — hai con số này cùng kể câu chuyện <strong>chi phí đầu vào đang truyền vào giá tiêu dùng</strong>. Lạm phát cơ bản <span class="num">4.67%</span> (loại năng lượng + thực phẩm) cho thấy áp lực lan rộng, không chỉ từ giá dầu.
+        </div>
+        <button class="dc-chart-btn" data-indicator="cpi_yoy_pct">📊 Biểu đồ</button>
+        <div class="dc-news">
+          <div class="dc-news-item">
+            <div class="dc-news-head">
+              <div class="dc-news-title"><a href="https://vneconomy.vn/cpi-thang-5-tang-029-ap-luc-tu-gia-dien-nuoc-va-xang-dau-mua-nang-nong.htm" target="_blank">CPI tháng 5 tăng 0,29%: Áp lực từ giá điện, nước và xăng dầu</a><span class="dc-news-sentiment TIÊU">TIÊU CỰC</span></div>
+              <div class="dc-news-meta">VnEconomy · 03/06</div>
+            </div>
+            <div class="dc-news-insight">Thời tiết nắng nóng gay gắt đẩy giá điện + nước sinh hoạt tăng, cùng giá xăng dầu và vật liệu xây dựng — bù trừ giảm của lương thực.</div>
+          </div>
+          <div class="dc-news-item">
+            <div class="dc-news-head">
+              <div class="dc-news-title"><a href="https://vneconomy.vn/hai-kich-ban-moi-cho-lam-phat-nam-2026-dua-tren-trien-vong-gia-dau.htm" target="_blank">2 kịch bản lạm phát 2026 dựa trên triển vọng giá dầu</a><span class="dc-news-sentiment TRUNG">TRUNG TÍNH</span></div>
+              <div class="dc-news-meta">VnEconomy · 06/2026</div>
+            </div>
+            <div class="dc-news-quote">Kịch bản cơ sở (70%): giá Brent 90-95 USD/thùng → CPI bình quân 2026 ≈ 4,8%<span class="author">VnEconomy phân tích</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CPI PANEL: 10 nhóm hàng -->
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-title">🧾 Phân rã CPI theo 10 nhóm hàng</span>
+          <span class="panel-note">Nguồn: TCTK</span>
+        </div>
+        <table class="panel-table">
+          <thead><tr><th>Nhóm tăng mạnh</th><th>Đóng góp</th><th></th><th>Nhóm giảm</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>Điện, nước, chất đốt</td><td class="mono neu">+3.7%</td><td>↑↑</td><td>Lương thực</td><td class="mono pos">↓</td></tr>
+            <tr><td>Vật liệu xây dựng</td><td class="mono neu">+2.5%</td><td>↑</td><td>Bưu chính viễn thông</td><td class="mono pos">↓</td></tr>
+            <tr><td>Giao thông</td><td class="mono neu">+1.8%</td><td>↑</td><td></td><td></td></tr>
+            <tr><td>Nhà ở</td><td class="mono neu">+1.5%</td><td>↑</td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PMI -->
+      <div class="data-card signal-green wide">
+        <div class="dc-head"><span class="dc-name">PMI Sản xuất</span><span class="dc-flag">🟢</span></div>
+        <div class="dc-value mono pos">52.8</div>
+        <div class="dc-target-row">
+          <span class="dc-target-badge met">MỞ RỘNG +2.8</span>
+          <span>ngưỡng 50</span>
+        </div>
+        <div class="dc-progress"><div class="dc-progress-fill met" style="width:90%"></div></div>
+        <div class="dc-meta"><span>MoM <strong class="mono">+2.3</strong></span><span>T4 <strong class="mono">50.5</strong></span></div>
+        <div class="dc-why">Phục hồi mạnh giữa Q2 — đơn hàng mới tăng nhanh nhất 3 tháng. Nhưng Chi phí đầu vào đỉnh 15 năm là cờ đỏ biên LN H2.</div>
+        <div class="dc-narrative">
+          PMI nhảy từ <span class="num">50.5</span> lên <span class="num">52.8</span> trong 1 tháng — mức tăng lớn nhất kể từ tháng 2. Cùng lúc TCTK công bố IIP <span class="num">+8.8%</span> YoY, 2 số này cùng xác nhận <strong>sản xuất CN đang mở rộng</strong>. Tuy nhiên bên trong PMI, sub-indices cho thấy sự phân hóa: <strong>6/8 tích cực nhưng Chi phí + Giá đầu ra đều ở đỉnh 15 năm</strong> — đây là điểm cần theo dõi cho biên LN H2.
+        </div>
+        <button class="dc-chart-btn" data-indicator="pmi">📊 Biểu đồ</button>
+      </div>
+
+      <!-- PMI PANEL: 8 sub-indices -->
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-title">⚡ PMI Sub-indices — pulse sức khỏe ngành CN</span>
+          <span class="panel-note">Nguồn: S&amp;P Global · 8 chỉ số thành phần</span>
+        </div>
+        <div class="pmi-grid">
+          <div class="pmi-item up"><div class="name">Sản lượng (Output)</div><div class="arr pos">↑</div><div class="note">tăng tháng 13 liên, nhanh nhất từ T2</div></div>
+          <div class="pmi-item up"><div class="name">Đơn hàng mới</div><div class="arr pos">↑</div><div class="note">phục hồi mạnh — nhanh nhất 3 tháng</div></div>
+          <div class="pmi-item up"><div class="name">Đơn hàng XK</div><div class="arr pos">↑</div><div class="note">phục hồi sau suy yếu T4</div></div>
+          <div class="pmi-item down"><div class="name">Việc làm</div><div class="arr neg">↓</div><div class="note">giảm tháng 3 liên — điểm yếu</div></div>
+          <div class="pmi-item up"><div class="name">Mua sắm</div><div class="arr pos">↑</div><div class="note">lần đầu tăng sau 3 tháng</div></div>
+          <div class="pmi-item down"><div class="name">Chi phí đầu vào</div><div class="arr neg">↑↑</div><div class="note">đỉnh 15 NĂM (từ 4/2011) — CỜ ĐỎ</div></div>
+          <div class="pmi-item down"><div class="name">Giá đầu ra</div><div class="arr neg">↑</div><div class="note">top 15 năm — DN chuyển chi phí</div></div>
+          <div class="pmi-item up"><div class="name">Tự tin 12 tháng</div><div class="arr neu">↑</div><div class="note">đỉnh 3 tháng nhưng muted</div></div>
+        </div>
+        <div class="panel-trend">💡 <strong>Andrew Harker (S&amp;P Global):</strong> "New orders rebound helped Vietnamese manufacturing expand midway through Q2 2026". Insight: 6/8 sub-indices tích cực, nhưng 2 sub về giá (chi phí + giá đầu ra) là cờ đỏ cho biên LN H2/2026.</div>
+      </div>
+
+      <!-- IIP -->
+      <div class="data-card signal-green">
+        <div class="dc-head"><span class="dc-name">IIP YoY (Sản xuất CN)</span><span class="dc-flag">🟢</span></div>
+        <div class="dc-value mono pos">+8.8<span class="dc-unit">%</span></div>
+        <div class="dc-meta"><span>MoM <strong class="mono">+3.3%</strong></span><span>lũy kế <strong class="mono">+9.1%</strong></span></div>
+        <div class="dc-why">Lũy kế +9.1% — cao nhất 5 tháng đầu năm trong 4 năm. Đồng pha với PMI Output ↑.</div>
+        <button class="dc-chart-btn" data-indicator="iip_yoy_pct">📊 Biểu đồ</button>
+      </div>
+
+      <!-- Trade balance -->
+      <div class="data-card signal-red">
+        <div class="dc-head"><span class="dc-name">Cán cân thương mại (lũy kế)</span><span class="dc-flag">🔴</span></div>
+        <div class="dc-value mono neg">-13.8<span class="dc-unit"> tỷ USD</span></div>
+        <div class="dc-meta"><span>tháng 5 <strong class="mono">-5.21 tỷ</strong></span><span>cùng kỳ 2025 <strong class="mono pos">+5.1 tỷ</strong></span></div>
+        <div class="dc-why">ĐẢO CHIỀU: từ xuất siêu sang nhập siêu. Nhập tăng nhanh hơn xuất (+30% vs +19.5%) → áp lực tỷ giá + phụ thuộc nguyên liệu.</div>
+        <div class="dc-narrative">
+          Cán cân thương mại đã chuyển từ <strong>xuất siêu 5.1 tỷ USD</strong> (5 tháng 2025) sang <strong>nhập siêu 13.8 tỷ USD</strong> (5 tháng 2026) — dịch chuyển <span class="num">18.9 tỷ USD</span> trong 1 năm. Nguyên nhân: nhập khẩu tăng <span class="num">+30%</span> YoY nhanh hơn xuất khẩu <span class="num">+19.5%</span>. Đáng chú ý: riêng khu vực nội địa nhập siêu tới <span class="num">20.76 tỷ USD</span>, trong khi FDI vẫn xuất siêu. Hai con số này cho thấy <strong>cấu trúc phụ thuộc nguyên liệu nhập vẫn chưa thay đổi</strong>.
+        </div>
+        <button class="dc-chart-btn" data-indicator="trade_balance">📊 Biểu đồ</button>
+      </div>
+
+      <!-- Exports -->
+      <div class="data-card signal-green">
+        <div class="dc-head"><span class="dc-name">Xuất khẩu lũy kế</span><span class="dc-flag">🟢</span></div>
+        <div class="dc-value mono pos">215.66<span class="dc-unit"> tỷ USD</span></div>
+        <div class="dc-meta"><span>YoY <strong class="mono">+19.5%</strong></span><span>MoM <strong class="mono">+2.1%</strong></span></div>
+        <div class="dc-why">Động lực ngoại thương mạnh. 24 mặt hàng >1 tỷ USD, 4 mặt hàng >10 tỷ USD → đa dạng hóa tốt.</div>
+        <button class="dc-chart-btn" data-indicator="exports">📊 Biểu đồ</button>
+      </div>
+
+      <!-- Imports -->
+      <div class="data-card signal-amber">
+        <div class="dc-head"><span class="dc-name">Nhập khẩu lũy kế</span><span class="dc-flag">🟡</span></div>
+        <div class="dc-value mono neu">229.46<span class="dc-unit"> tỷ USD</span></div>
+        <div class="dc-meta"><span>YoY <strong class="mono">+30.0%</strong></span></div>
+        <div class="dc-why">Nhập tăng nhanh hơn xuất → cán cân xấu đi. Phụ thuộc nguyên liệu nhập từ TQ.</div>
+        <button class="dc-chart-btn" data-indicator="imports">📊 Biểu đồ</button>
+      </div>
+
+      <!-- FDI disbursed -->
+      <div class="data-card signal-green">
+        <div class="dc-head"><span class="dc-name">FDI thực hiện</span><span class="dc-flag">🟢</span></div>
+        <div class="dc-value mono pos">9.75<span class="dc-unit"> tỷ USD</span></div>
+        <div class="dc-meta"><span>YoY <strong class="mono">+9.6%</strong></span></div>
+        <div class="dc-why">Cao nhất 5 tháng đầu năm trong 5 năm — dòng vốn thực đến, không chỉ đăng ký.</div>
+        <button class="dc-chart-btn" data-indicator="fdi_disbursed">📊 Biểu đồ</button>
+      </div>
+
+      <!-- FDI registered -->
+      <div class="data-card signal-green">
+        <div class="dc-head"><span class="dc-name">FDI đăng ký</span><span class="dc-flag">🟢</span></div>
+        <div class="dc-value mono pos">24.81<span class="dc-unit"> tỷ USD</span></div>
+        <div class="dc-meta"><span>YoY <strong class="mono">+34.9%</strong></span></div>
+        <div class="dc-why">Đăng ký +34.9% YoY → độ hấp dẫn đầu tư tương lai rất cao.</div>
+      </div>
+
+      <!-- Retail -->
+      <div class="data-card signal-green">
+        <div class="dc-head"><span class="dc-name">Bán lẻ &amp; dịch vụ lũy kế</span><span class="dc-flag">🟢</span></div>
+        <div class="dc-value mono pos">3,185<span class="dc-unit"> tỷ VND</span></div>
+        <div class="dc-meta"><span>YoY <strong class="mono">+11.2%</strong></span></div>
+        <div class="dc-why">Tiêu dùng nội địa tốt — bù đắp nếu ngoại thương suy yếu.</div>
+      </div>
+
+      <!-- Business new -->
+      <div class="data-card signal-green">
+        <div class="dc-head"><span class="dc-name">DN thành lập mới</span><span class="dc-flag">🟢</span></div>
+        <div class="dc-value mono pos">94.8<span class="dc-unit"> nghìn DN</span></div>
+        <div class="dc-meta"><span>YoY <strong class="mono">+42.1%</strong></span><span>vốn <strong class="mono">+64.8%</strong></span></div>
+        <div class="dc-why">Độ tin tưởng kinh doanh cao.</div>
+      </div>
+
+      <!-- Business exited -->
+      <div class="data-card signal-amber">
+        <div class="dc-head"><span class="dc-name">DN rút lui</span><span class="dc-flag">🟡</span></div>
+        <div class="dc-value mono neu">97.8<span class="dc-unit"> nghìn DN</span></div>
+        <div class="dc-meta"><span>giải thể YoY <strong class="mono neg">+99.1%</strong></span><span>tạm ngừng <strong class="mono">78.8K</strong></span></div>
+        <div class="dc-why">Áp lực kinh doanh lớn dù đăng ký mới tăng — bức tranh 2 mặt.</div>
+      </div>
+
+      <!-- Int'l visitors -->
+      <div class="data-card signal-green">
+        <div class="dc-head"><span class="dc-name">Khách quốc tế lũy kế</span><span class="dc-flag">🟢</span></div>
+        <div class="dc-value mono pos">10.6<span class="dc-unit"> triệu lượt</span></div>
+        <div class="dc-meta"><span>YoY <strong class="mono">+14.9%</strong></span></div>
+        <div class="dc-why">Cao nhất 5 tháng đầu năm từ trước đến nay — động lực dịch vụ/du lịch.</div>
+      </div>
+
+      <!-- State investment -->
+      <div class="data-card signal-green">
+        <div class="dc-head"><span class="dc-name">Đầu tư từ NSNN</span><span class="dc-flag">🟢</span></div>
+        <div class="dc-value mono pos">+10.2<span class="dc-unit">% YoY</span></div>
+        <div class="dc-why">Động lực tài khóa — vốn đầu tư công đẩy mạnh.</div>
+      </div>
+
+      <!-- State budget -->
+      <div class="data-card signal-green">
+        <div class="dc-head"><span class="dc-name">Ngân sách NN (thu/chi)</span><span class="dc-flag">🟢</span></div>
+        <div class="dc-value mono pos">+82.9<span class="dc-unit"> nghìn tỷ VND</span></div>
+        <div class="dc-meta"><span>thu <strong class="mono">1,137.3</strong></span><span>chi <strong class="mono">1,054.4</strong></span></div>
+        <div class="dc-why">Thặng dư ngân sách — health tài khóa tốt.</div>
+      </div>
+    </div>
+
+      <!-- SPECIAL INSIGHT: PMI -->
+      <div class="special-insight">
+        <span class="si-label">🔬 phân tích chuyên sâu</span>
+        <div class="si-banner" style="background-image:url('https://images.unsplash.com/photo-1565043666747-69f6646db940?w=800&h=300&q=80&fit=crop')">
+          <div class="si-banner-overlay"></div>
+          <div class="si-banner-credit">📷 Unsplash</div>
+        </div>
+        <div class="si-title">🏭 Sản xuất: PMI bật tăng nhờ tích trữ hàng trước xung đột</div>
+        <div class="si-summary">PMI 52.8 (đỉnh 3 tháng), nhưng động lực chính là DN tích trữ hàng trước xung đột Trung Đông — chất lượng phục hồi cần đối chiếu IIP + employment.</div>
+        <div class="si-body">
+          <div class="si-col-left">
+            <div class="si-section-label">📊 Con số kể</div>
+        <div class="si-numbers">PMI tăng từ <span class="num">50.5</span> (T4) lên <span class="num">52.8</span> (T5) — mức tăng <span class="num">+2.3 điểm</span> lớn nhất kể từ tháng 2. Theo S&amp;P Global, động lực chính là DN tích trữ hàng hóa trước rủi ro xung đột Trung Đông, không chỉ do cầu tăng. Bên trong PMI: <strong>6/8 sub-indices tích cực</strong> (Output ↑ tháng 13 liên, New Orders ↑ mạnh nhất 3 tháng), nhưng Employment ↓ tháng 3 liên và Confidence 12M 'muted' — phục hồi chưa vững. Cùng lúc TCTK công bố IIP <span class="num">+8.8%</span> YoY — số thực tế cho thấy sản xuất CN đang mở rộng thật. PMI Output Prices + Input Costs đều ở đỉnh 15 năm — áp lực biên LN rõ ràng cho H2.</div>
+          </div>
+          <div class="si-col-right">
+            <div class="si-section-label">📰 Tin &amp; phân tích (4 nguồn)</div>
+        <div class="si-news-grid">
+          <div class="si-news-item">
+            <div class="si-news-head"><div class="si-news-title"><a href="https://vneconomy.vn/pmi-thang-5-dat-528-diem-don-hang-tang-manh-nho-tich-tru-hang.htm" target="_blank">PMI tháng 5 đạt 52,8 điểm, đơn hàng tăng mạnh nhờ tích trữ hàng</a><span class="si-news-sentiment TRUNG">TRUNG</span></div><div class="si-news-meta">VnEconomy · 01/06</div></div>
+            <div class="si-news-insight">Động lực chính: DN tích trữ hàng trước rủi ro xung đột Trung Đông — không chỉ tăng cầu thực.</div>
+          </div>
+          <div class="si-news-item">
+            <div class="si-news-head"><div class="si-news-title"><a href="https://cafef.vn/pmi-nganh-san-xuat-viet-nam-co-tin-hieu-vui-trong-thang-5-2026-188260601093016793.chn" target="_blank">PMI ngành sản xuất có tín hiệu vui tháng 5, chuyên gia: 'tăng nhưng chưa vững'</a><span class="si-news-sentiment TRUNG">TRUNG</span></div><div class="si-news-meta">CafeF · 01/06</div></div>
+            <div class="si-news-insight">S&amp;P Global: 'điểm sáng là phục hồi đơn hàng mới', nhưng DN vẫn thận trọng tuyển dụng.</div>
+          </div>
+          <div class="si-news-item">
+            <div class="si-news-head"><div class="si-news-title"><a href="https://www.vietnamplus.vn/don-hang-moi-phuc-hoi-pmi-san-xuat-o-viet-nam-len-muc-cao-nhat-trong-3-thang-post1113854.vnp" target="_blank">Đơn hàng mới phục hồi, PMI lên mức cao nhất 3 tháng</a><span class="si-news-sentiment TÍCH">TÍCH</span></div><div class="si-news-meta">VietnamPlus · 01/06</div></div>
+            <div class="si-news-insight">Phục hồi đơn hàng mới mạnh nhất nhiều tháng — tín hiệu ngắn hạn tích cực.</div>
+          </div>
+          <div class="si-news-item">
+            <div class="si-news-head"><div class="si-news-title"><a href="https://www.pmi.spglobal.com/Public/Home/PressRelease/d05d320a82f840b4b910a30255537863" target="_blank">Andrew Harker (S&amp;P): 'New orders rebound helped manufacturing expand midway through Q2'</a><span class="si-news-sentiment TÍCH">TÍCH</span></div><div class="si-news-meta">S&amp;P Global · 01/06</div></div>
+            <div class="si-news-insight">Quote chính thức từ S&amp;P — xác nhận động lực phục hồi đến từ đơn hàng.</div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="si-section-label">🔗 Góc nhìn rộng hơn</div>
+        <div class="si-cross-story">PMI Output tăng tháng 13 liên tiếp và TCTK cùng lúc công bố IIP <span class="num">+8.8%</span> YoY — hai chỉ số khác phương pháp (survey kỳ vọng vs khối lượng thực) cùng xác nhận sản xuất CN đang mở rộng thật. Nhưng bên trong PMI, Việc làm giảm tháng 3 liên trong khi TCTK ghi nhận DN giải thể tăng <span class="num">+99.1%</span> YoY — <strong>hai con số này kể câu chuyện 2 mặt</strong>: sản xuất phục hồi nhưng thị trường kinh doanh đang phân hóa mạnh, kẻ mạnh mạnh lên, kẻ yếu rút lui. Chi phí đầu vào đỉnh 15 năm và Giá đầu ra ở top 15 năm cho thấy biên LN đang bị nén — điểm cần theo dõi cho H2.</div>
+      </div>
+
+      <!-- SPECIAL INSIGHT: Bán lẻ -->
+      <div class="special-insight">
+        <span class="si-label">🔬 phân tích chuyên sâu</span>
+        <div class="si-banner" style="background-image:url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&h=300&q=80&fit=crop')">
+          <div class="si-banner-overlay"></div>
+          <div class="si-banner-credit">📷 Unsplash</div>
+        </div>
+        <div class="si-title">🛍️ Tiêu dùng nội địa: Động lực bù đắp khi ngoại thương đảo chiều</div>
+        <div class="si-summary">Bán lẻ &amp; dịch vụ tiêu dùng 5 tháng +11.2% YoY, đạt 3.185 nghìn tỷ đồng — động lực nội địa mạnh trong bối cảnh ngoại thương nhập siêu.</div>
+        <div class="si-body">
+          <div class="si-col-left">
+            <div class="si-section-label">📊 Con số kể</div>
+        <div class="si-numbers">Bán lẻ + dịch vụ 5 tháng đạt <span class="num">3.185 nghìn tỷ đồng</span> (<span class="num">+11.2%</span> YoY) — mức cao trong nhiều năm theo MAS Research. Đáng chú ý: tăng trưởng loại trừ yếu tố giá chỉ <span class="num">+6.1%</span> YoY (theo TVS) — khoảng cách <span class="num">5.1 điểm phần trăm</span> cho thấy <strong>một nửa tăng trưởng danh nghĩa đến từ lạm phát</strong>, một nửa từ khối lượng thực. Khách quốc tế <span class="num">10.6 triệu lượt</span> (<span class="num">+14.9%</span>) — cao nhất từ trước đến nay — động lực trực tiếp cho dịch vụ lưu trú, ăn uống.</div>
+          </div>
+          <div class="si-col-right">
+            <div class="si-section-label">📰 Tin &amp; phân tích (3 nguồn)</div>
+        <div class="si-news-grid">
+          <div class="si-news-item">
+            <div class="si-news-head"><div class="si-news-title"><a href="https://vietstock.vn/2026/06/tong-muc-ban-le-hang-hoa-va-doanh-thu-dich-vu-tieu-dung-trong-5-thang-dau-nam-dathon-318-trieu-ty-dong-768-1450043.htm" target="_blank">Tổng mức bán lẻ 5 tháng đạt hơn 3,18 triệu tỷ đồng</a><span class="si-news-sentiment TÍCH">TÍCH</span></div><div class="si-news-meta">Vietstock · 03/06</div></div>
+            <div class="si-news-insight">Số liệu từ Cục Thống kê ngày 3/6 — tăng 11.2% YoY, mức cao trong nhiều năm.</div>
+          </div>
+          <div class="si-news-item">
+            <div class="si-news-head"><div class="si-news-title"><a href="https://www.tvs.vn/api/files/10062026_Bao_cao_cap_nhat_Vi_mo_thang_5.pdf" target="_blank">Báo cáo vĩ mô tháng 5/2026 — TVS Research</a><span class="si-news-sentiment TRUNG">TRUNG</span></div><div class="si-news-meta">TVS · 10/06</div></div>
+            <div class="si-news-insight">Tăng trưởng thực (loại giá) chỉ +6.1% — nửa tăng trưởng danh nghĩa là lạm phát, không phải tiêu dùng thực.</div>
+          </div>
+          <div class="si-news-item">
+            <div class="si-news-head"><div class="si-news-title"><a href="https://vncsi.com.vn/bao-cao-kinh-te-vi-mo-thang-5-va-nam-thang-dau-nam-2026/" target="_blank">Báo cáo Kinh tế vĩ mô tháng 5/2026 — CSI Research</a><span class="si-news-sentiment TÍCH">TÍCH</span></div><div class="si-news-meta">CSI · 06/2026</div></div>
+            <div class="si-news-insight">CSI đánh giá tiêu dùng nội địa là điểm sáng bù đắp áp lực ngoại thương.</div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="si-section-label">🔗 Góc nhìn rộng hơn</div>
+        <div class="si-cross-story">Khách quốc tế đạt <span class="num">10.6 triệu lượt</span> (<span class="num">+14.9%</span> YoY) — cao nhất từ trước đến nay — trực tiếp đẩy dịch vụ lưu trú và ăn uống tăng theo. Nhưng tăng trưởng bán lẻ danh nghĩa <span class="num">+11.2%</span> khi loại lạm phát chỉ còn <span class="num">+6.1%</span> (theo TVS) — khoảng cách 5.1 điểm phần trăm cho thấy <strong>một nửa tăng trưởng đến từ giá tăng</strong>, không phải tiêu dùng thực. Bối cảnh ngoại thương nhập siêu 13.8 tỷ khiến tiêu dùng nội địa trở thành trụ bù đắp quan trọng — nếu tiêu dùng yếu đi, cán cân vĩ mô sẽ xấu hơn.</div>
+      </div>
+  </section>
+
+  <!-- GROUP 2 — TIỀN TỆ & TÀI CHÍNH -->
+  <section class="group-section" id="group2">
+    <div class="group-header">
+      <span class="tag g2">02</span>
+      <h2>Tiền tệ &amp; Tài chính — Thanh khoản · Lãi suất · Trái phiếu · CK</h2>
+      <div class="divider-line"></div>
+      <span style="font-size:12px;color:var(--text-faint)">Nguồn: HN Ngân hàng + HTT Trái phiếu</span>
+    </div>
+
+    <div class="highlights">
+      <div class="highlight-box neg">
+        <div class="hl-label">🔴 TIÊU CỰC</div>
+        <ul class="hl-items">
+          <li>LNH ON <span class="hl-val neg">7.0%</span> (leo thang từ 4.2% đầu tháng)</li>
+          <li>NIM ngân hàng <span class="hl-val neg">thu hẹp</span> — bị ép 2 đầu</li>
+          <li>TPDN đáo hạn <span class="hl-val neg">141.9 nghìn tỷ VND</span> còn lại 2026 (52% BĐS)</li>
+        </ul>
+      </div>
+      <div class="highlight-box pos">
+        <div class="hl-label">🟢 TÍCH CỰC</div>
+        <ul class="hl-items">
+          <li>VN-Index <span class="hl-val pos">+25% YoY</span> · chốt 1,863 điểm</li>
+          <li>TPCP khối ngoại <span class="hl-val pos">mua ròng</span> (đảo chiều)</li>
+          <li>Tài khoản CK <span class="hl-val pos">vượt 13 triệu</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="data-grid">
+      <!-- SPECIAL INSIGHT: Lãi suất -->
+      <div class="special-insight">
+        <span class="si-label">🔬 phân tích chuyên sâu</span>
+        <div class="si-banner" style="background-image:url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&h=300&q=80&fit=crop')">
+        <div class="si-banner-overlay"></div>
+        <div class="si-banner-credit">📷 Unsplash</div>
+      </div>
+        <div class="si-title">💧 Thanh khoản VND: LNH leo thang bất thường trong tháng</div>
+        <div class="si-summary">Lãi suất liên ngân hàng ON tăng từ 4.2% lên 7.0% trong 4 tuần, bất thường so với xu hướng cả năm — cùng lúc NHNN bơm ròng 30.732 tỷ.</div>
+        <div class="si-body">
+          <div class="si-col-left">
+            <div class="si-section-label">📊 Con số kể</div>
+        <div class="si-numbers">LNH ON leo thang qua 4 tuần: đầu tháng <span class="num">4.2%</span> → tuần 2 <span class="num">5.30%</span> → tuần 3 <span class="num">6.70%</span> → tuần 4 <span class="num">7.0%</span> — mức <span class="num">+2.8 điểm phần trăm</span> nhanh nhất năm. Cùng lúc, NHNN bơm ròng <span class="num">30.732 tỷ</span> qua OMO — con số thoạt nhìn mâu thuẫn: <strong>bơm tiền mà lãi suất vẫn tăng</strong>. Cấu trúc lãi suất huy động phân hóa mạnh: Big4 giữ ổn định <span class="num">5.9-6.0%</span> (12 tháng), NHTM cổ phần (VIB, LPBank) đẩy lên <span class="num">7.0%</span>. Nguyên nhân: <strong>12/27 NH niêm yết ghi nhận tiền gửi sụt giảm</strong> → cổ phần vừa/nhỏ tăng lãi suất giữ chân dòng tiền. Lãi suất cho vay bình quân <span class="num">7.1-9.4%</span> — nén giữa chi phí vốn ↑ và kiểm soát đầu ra.</div>
+          </div>
+          <div class="si-col-right">
+            <div class="si-section-label">📰 Tin & phân tích (4 nguồn)</div>
+        <div class="si-news-grid">
+          <div class="si-news-item">
+            <div class="si-news-head"><div class="si-news-title"><a href="https://thoibaotaichinhvietnam.vn/thi-truong-tien-te-tuan-25-295.htm" target="_blank">Thị trường tiền tệ tuần 25-29/5: LNH tăng mạnh gần 8%</a><span class="si-news-sentiment TIÊU">TIÊU</span></div><div class="si-news-meta">TT Tài chính · 30/05</div></div>
+            <div class="si-news-insight">LNH nhiều kỳ hạn lên gần 8%/năm (cao nhất đầu năm); NHNN bơm ròng quy mô lớn nhất tháng.</div>
+          </div>
+          <div class="si-news-item">
+            <div class="si-news-head"><div class="si-news-title"><a href="https://cafef.vn/lai-suat-thang-5.html" target="_blank">Lãi suất tiền gửi tháng 5/2026: Đồng loạt hạ nhiệt đầu tháng</a><span class="si-news-sentiment TRUNG">TRUNG</span></div><div class="si-news-meta">CafeF · 05/2026</div></div>
+            <div class="si-news-insight">Đầu tháng 5 có làn sóng giảm lãi suất huy động, nhưng từ tuần 2 đảo chiều tăng trở lại ở NHTM cổ phần.</div>
+          </div>
+          <div class="si-news-item">
+            <div class="si-news-head"><div class="si-news-title"><a href="https://vneconomy.vn/du-bao-lai-suat-ngan-hang-se-nhich-them-05-co-phieu-ngan-hang-con-hap-dan.htm" target="_blank">Dự báo lãi suất ngân hàng sẽ nhích thêm 0,5%</a><span class="si-news-sentiment TIÊU">TIÊU</span></div><div class="si-news-meta">VnEconomy · 05/2026</div></div>
+            <div class="si-news-insight">LNH có thời điểm tăng trên 17%/năm trong Q1/2026; rủi ro thanh khoản ngắn hạn từng đẩy lãi suất rất cao.</div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="si-section-label">🔗 Góc nhìn rộng hơn</div>
+        <div class="si-cross-story">LNH leo thang <span class="num">+2.8 điểm phần trăm</span> trong 1 tháng nhưng lãi suất cho vay chỉ nhích nhẹ (bị kiểm soát) — khoảng cách 2 đầu này trực tiếp <strong>nén NIM ngân hàng</strong>, đặc biệt nhóm NHTM cổ phần vừa và nhỏ. Cùng lúc, TT 08/2026 (15/5) nới LDR cho Big4 là phản ứng chính sách trực tiếp vào áp lực thanh khoản — cho thấy NHNN cũng nhìn thấy căng thẳng. Đáng chú ý, VN-Index vẫn <span class="num">+0.51%</span> MoM trong bối cảnh LNH leo thang — <strong>thị trường CK chưa phản ứng lo ngại</strong>, có thể vì dòng tiền cá nhân (tài khoản vượt 13 triệu) vẫn ổn.</div>
+      </div>
+
+      <!-- Interbank data card -->
+      <div class="data-card signal-red">
+        <div class="dc-head"><span class="dc-name">Lãi suất LNH qua đêm</span><span class="dc-flag">🔴</span></div>
+        <div class="dc-value mono neg">7.0<span class="dc-unit">%</span></div>
+        <div class="dc-meta"><span>1 tuần <strong class="mono">7.4%</strong></span><span>2 tuần <strong class="mono">7.4%</strong></span><span>1 tháng <strong class="mono">7.35%</strong></span></div>
+        <div class="dc-why">Áp lực thanh khoản VND ngắn hạn chưa hạ nhiệt. NHNN bơm ròng 30.732 tỷ nhưng vẫn căng.</div>
+        <div class="dc-narrative">
+          LNH ON tăng từ <span class="num">4.2%</span> đầu tháng lên <span class="num">7.0%</span> cuối tháng — mức leo thang <span class="num">+2.8 điểm phần trăm</span> trong 4 tuần. Cùng lúc, NHNN bơm ròng <span class="num">30.732 tỷ đồng</span> qua OMO. Hai con số này thoạt nhìn mâu thuẫn: <strong>bơm tiền mà lãi suất vẫn tăng</strong> — cho thấy nhu cầu vốn ngắn hạn thật sự lớn, không chỉ vấn đề tâm lý.
+        </div>
+        <button class="dc-chart-btn" data-indicator="interbank_on">📊 Biểu đồ</button>
+        <div class="dc-news">
+          <div class="dc-news-item">
+            <div class="dc-news-head">
+              <div class="dc-news-title"><a href="https://thoibaotaichinhvietnam.vn/thi-truong-tien-te-tuan-25-295.htm" target="_blank">Thị trường tiền tệ tuần 25-29/5: LNH tăng mạnh gần 8%</a><span class="dc-news-sentiment TIÊU">TIÊU CỰC</span></div>
+              <div class="dc-news-meta">Thời báo Tài chính · 30/05</div>
+            </div>
+            <div class="dc-news-insight">LNH nhiều kỳ hạn đẩy lên gần 8%/năm (cao nhất từ đầu năm); NHNN bơm ròng hơn 30.700 tỷ đồng.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL: LNH monthly trend (4 tuần) -->
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-title">📈 Diễn biến LNH qua đêm 4 tuần tháng 5</span>
+          <span class="panel-note">Nguồn: HN Ngân hàng</span>
+        </div>
+        <table class="panel-table">
+          <thead><tr><th>Tuần</th><th>ON (%)</th><th>Biến động</th><th>Ghi chú</th></tr></thead>
+          <tbody>
+            <tr><td>Đầu tháng 5</td><td class="mono">4.20</td><td>—</td><td>bình thường</td></tr>
+            <tr><td>Tuần 2 (11-15/5)</td><td class="mono neu">5.30</td><td class="neg">+0.30đđ</td><td>bắt đầu leo thang</td></tr>
+            <tr><td>Tuần 3 (18-22/5)</td><td class="mono neg">6.70</td><td class="neg">+1.40đđ</td><td>vọt mạnh</td></tr>
+            <tr><td>Tuần 4 (25-29/5)</td><td class="mono neg">7.00</td><td class="neg">+0.30đđ</td><td>neo cao</td></tr>
+          </tbody>
+        </table>
+        <div class="panel-trend">⚠️ Tổng leo thang <strong class="mono neg">+2.8đđ</strong> trong 1 tháng — áp lực thanh khoản thật, không chỉ tâm lý.</div>
+      </div>
+
+      <!-- PANEL: Deposit rates by bank -->
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-title">🏦 Lãi suất huy động theo ngân hàng — Big4 vs NHTM cổ phần</span>
+          <span class="panel-note">Nguồn: HN Ngân hàng · cuối tháng 5</span>
+        </div>
+        <table class="panel-table">
+          <thead><tr><th>Nhóm</th><th>Ngân hàng</th><th>1-3 tháng</th><th>6-9 tháng</th><th>12 tháng+</th><th>Biến động</th></tr></thead>
+          <tbody>
+            <tr><td rowspan="4"><strong style="color:var(--purple)">Big4</strong></td><td>Vietcombank</td><td class="mono">2.1-4.75</td><td class="mono">3.5-6.6</td><td class="mono">5.9-6.0</td><td><span class="panel-tag TÍCH">ổn định</span></td></tr>
+            <tr><td>BIDV</td><td class="mono">2.1-4.75</td><td class="mono">3.5-6.6</td><td class="mono">5.9-6.0</td><td><span class="panel-tag TÍCH">ổn định</span></td></tr>
+            <tr><td>VietinBank</td><td class="mono">2.1-4.75</td><td class="mono">3.5-6.6</td><td class="mono">5.9-6.0</td><td><span class="panel-tag TÍCH">ổn định</span></td></tr>
+            <tr><td>Agribank</td><td class="mono">2.1-4.75</td><td class="mono">3.5-6.6</td><td class="mono">5.9-6.0</td><td><span class="panel-tag TÍCH">ổn định</span></td></tr>
+            <tr><td rowspan="6"><strong style="color:var(--pink)">Cổ phần</strong></td><td>Sacombank</td><td>—</td><td class="mono">6.0-7.0</td><td>—</td><td><span class="panel-tag TIÊU">tăng 0.1-1.5%</span></td></tr>
+            <tr><td>VPBank</td><td>—</td><td class="mono">6.0-7.0</td><td>—</td><td><span class="panel-tag TIÊU">tăng 0.1-1.5%</span></td></tr>
+            <tr><td>OCB</td><td>—</td><td class="mono">6.0-7.0</td><td>—</td><td><span class="panel-tag TIÊU">tăng 0.1-1.5%</span></td></tr>
+            <tr><td>Bac A Bank</td><td>—</td><td class="mono">6.0-7.0</td><td>—</td><td><span class="panel-tag TIÊU">tăng 0.1-1.5%</span></td></tr>
+            <tr><td>VIB</td><td>—</td><td>—</td><td class="mono neg">7.0</td><td><span class="panel-tag TIÊU">cao nhất</span></td></tr>
+            <tr><td>LPBank</td><td>—</td><td>—</td><td class="mono neg">7.0</td><td><span class="panel-tag TIÊU">cao nhất</span></td></tr>
+          </tbody>
+        </table>
+        <div class="panel-trend">Phân hóa mạnh: 12/27 NH niêm yết sụt giảm tiền gửi → cổ phần vừa/nhỏ tăng lãi suất giữ chân dòng tiền.</div>
+      </div>
+
+      <!-- PANEL: Lending rates -->
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-title">💵 Lãi suất cho vay — phân tầng</span>
+          <span class="panel-note">Nguồn: HN Ngân hàng</span>
+        </div>
+        <table class="panel-table">
+          <thead><tr><th>Nhóm</th><th>Khoảng (%)</th><th>Đặc điểm</th></tr></thead>
+          <tbody>
+            <tr><td><strong style="color:var(--purple)">Big4</strong></td><td class="mono pos">5.42-7.0</td><td>ưu đãi rất thấp</td></tr>
+            <tr><td><strong style="color:var(--pink)">NHTM cổ phần</strong></td><td class="mono neg">10.8-15.0</td><td>cao hơn nhiều</td></tr>
+            <tr><td><strong>Bình quân</strong></td><td class="mono">7.1-9.4</td><td>giữ ổn định, giảm nhẹ</td></tr>
+          </tbody>
+        </table>
+        <div class="panel-trend">NHNN yêu cầu tiết giảm chi phí (CV 3972, CV 4190) nhưng NIM bị ép 2 đầu — chi phí vốn ↑, lãi suất cho vay bị kiểm soát.</div>
+      </div>
+
+      <!-- PANEL: Yield curve TPCP -->
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-title">📉 Yield curve TPCP — lợi suất theo kỳ hạn</span>
+          <span class="panel-note">Nguồn: HN Ngân hàng + HTT Trái phiếu · snapshot tuần cuối tháng 5</span>
+        </div>
+        <div class="yield-curve-wrap"><canvas id="yieldCurve"></canvas></div>
+        <div class="panel-trend">Tăng nhẹ hầu hết kỳ hạn — áp lực từ lợi suất TP toàn cầu (đặc biệt Mỹ 10Y = 4.52%). Cấu trúc bình thường (dốc lên).</div>
+      </div>
+
+      <!-- FX central -->
+      <div class="data-card signal-amber">
+        <div class="dc-head"><span class="dc-name">Tỷ giá trung tâm</span><span class="dc-flag">🟡</span></div>
+        <div class="dc-value mono neu">25,139<span class="dc-unit"> VND/USD</span></div>
+        <div class="dc-meta"><span>MoM <strong class="mono">+54 VND</strong></span></div>
+        <div class="dc-why">NHNN điều tiết linh hoạt. Áp lực giảm nhưng DXY 98-99 + Fed 'higher-for-longer' → rủi ro tỷ giá H2.</div>
+        <button class="dc-chart-btn" data-indicator="fx_central">📊 Biểu đồ</button>
+      </div>
+
+      <!-- FX free -->
+      <div class="data-card">
+        <div class="dc-head"><span class="dc-name">Tỷ giá tự do</span><span class="dc-flag"></span></div>
+        <div class="dc-value mono">26,380-26,420<span class="dc-unit"> VND/USD</span></div>
+        <div class="dc-meta"><span>MoM <strong class="mono pos">-140 VND</strong></span></div>
+        <div class="dc-why">Tâm lý thị trường cải thiện — đầu cơ ngoại tệ chặn đứng.</div>
+      </div>
+
+      <!-- Gold -->
+      <div class="data-card signal-amber">
+        <div class="dc-head"><span class="dc-name">Vàng thế giới (XAU/USD)</span><span class="dc-flag">🟡</span></div>
+        <div class="dc-value mono neu">4,460<span class="dc-unit"> USD/oz</span></div>
+        <div class="dc-meta"><span>MoM <strong class="mono pos">-1%</strong></span><span>YoY <strong class="mono pos">+34%</strong></span></div>
+        <div class="dc-why">Hạ nhiệt từ đỉnh 4,900 (tháng 4), dao động 4,460-4,500 — safe haven.</div>
+        <button class="dc-chart-btn" data-indicator="gold">📊 Biểu đồ</button>
+      </div>
+
+      <!-- Credit -->
+      <div class="data-card signal-green">
+        <div class="dc-head"><span class="dc-name">Dư nợ tín dụng YoY</span><span class="dc-flag">🟢</span></div>
+        <div class="dc-value mono pos">+18<span class="dc-unit">%</span></div>
+        <div class="dc-meta"><span>SBV (8/5) <strong class="mono">+4.42%</strong></span><span>SSI (31/5) <strong class="mono">+5.71%</strong></span></div>
+        <div class="dc-why">Khác ngày gốc — ghi cả 2 (nguyên tắc 3.4). Tín dụng vào ngành thực (vận tải, CN) — tín hiệu tốt.</div>
+      </div>
+
+      <!-- Stock market -->
+      <div class="data-card signal-green">
+        <div class="dc-head"><span class="dc-name">VN-Index</span><span class="dc-flag">🟢</span></div>
+        <div class="dc-value mono pos">1,863<span class="dc-unit">.49</span></div>
+        <div class="dc-meta"><span>MoM <strong class="mono">+0.51%</strong></span><span>YoY <strong class="mono">+25%</strong></span></div>
+        <div class="dc-why">Dòng nội cân bằng tốt dù khối ngoại bán ròng 19 nghìn tỷ. Tài khoản CK vượt 13 triệu.</div>
+        <button class="dc-chart-btn" data-indicator="vn_index">📊 Biểu đồ</button>
+      </div>
+
+      <!-- Corporate bond -->
+      <div class="data-card signal-amber">
+        <div class="dc-head"><span class="dc-name">Phát hành TPDN (tháng 5)</span><span class="dc-flag">🟡</span></div>
+        <div class="dc-value mono neu">40,000<span class="dc-unit"> tỷ VND</span></div>
+        <div class="dc-meta"><span>riêng lẻ lũy kế <strong class="mono">107K tỷ</strong></span><span>công chúng <strong class="mono">20K tỷ</strong></span></div>
+        <div class="dc-why">141.9 nghìn tỷ đáo hạn còn lại 2026, 52% BĐS → áp lực thanh khoản H2. NH chiếm 70% phát hành.</div>
+      </div>
+
+      <!-- Govt bond -->
+      <div class="data-card">
+        <div class="dc-head"><span class="dc-name">Phát hành TPCP (tháng 5)</span><span class="dc-flag"></span></div>
+        <div class="dc-value mono">33,630<span class="dc-unit"> tỷ VND</span></div>
+        <div class="dc-meta"><span>lũy kế <strong class="mono">159K tỷ</strong></span><span>= <strong class="mono">32% KH năm</strong></span></div>
+        <div class="dc-why">Huy động 32% KH năm — đạt quý. Khối ngoại đảo chiều mua ròng là tín hiệu tích cực.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GROUP 3 — NGÀNH & CƠ CẤU -->
+  <section class="group-section" id="group3">
+    <div class="group-header">
+      <span class="tag g3">03</span>
+      <h2>Ngành &amp; Cơ cấu — Phân tích sâu thương mại + hàng hóa</h2>
+      <div class="divider-line"></div>
+      <span style="font-size:12px;color:var(--text-faint)">Nguồn: Hải quan + S&amp;P PMI + TCTK + HN Ngân hàng</span>
+    </div>
+
+    <div class="highlights">
+      <div class="highlight-box neg">
+        <div class="hl-label">🔴 TIÊU CỰC</div>
+        <ul class="hl-items">
+          <li>PMI Chi phí đầu vào <span class="hl-val neg">đỉnh 15 NĂM</span> (từ 4/2011)</li>
+          <li>Nhập từ TQ <span class="hl-val neg">+33.6%</span> — phụ thuộc nguyên liệu</li>
+        </ul>
+      </div>
+      <div class="highlight-box pos">
+        <div class="hl-label">🟢 TÍCH CỰC</div>
+        <ul class="hl-items">
+          <li><span class="hl-val pos">24 mặt hàng</span> XK &gt;1 tỷ USD (đa dạng hóa)</li>
+          <li>PMI Đơn hàng mới <span class="hl-val pos">phục hồi mạnh</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="data-grid">
+      <!-- SPECIAL INSIGHT: XNK -->
+      <div class="special-insight">
+        <span class="si-label">🔬 phân tích chuyên sâu</span>
+        <div class="si-banner" style="background-image:url('https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?w=800&h=300&q=80&fit=crop')">
+        <div class="si-banner-overlay"></div>
+        <div class="si-banner-credit">📷 Unsplash</div>
+      </div>
+        <div class="si-title">🌍 Ngoại thương: Khi Việt Nam nhập siêu lần đầu sau gần 1 thập kỷ</div>
+        <div class="si-summary">Cán cân thương mại 5 tháng chuyển từ xuất siêu 5.1 tỷ (cùng kỳ 2025) sang nhập siêu 13.8 tỷ USD — đảo chiều cấu trúc kéo dài gần 1 thập kỷ.</div>
+        <div class="si-body">
+          <div class="si-col-left">
+            <div class="si-section-label">📊 Con số kể</div>
+        <div class="si-numbers">Tổng XNK 5 tháng <span class="num">445.12 tỷ USD</span> (<span class="num">+25%</span> YoY) — cao nhất từ trước đến nay, nhưng cấu trúc đảo chiều: xuất <span class="num">+19.5%</span>, nhập <span class="num">+30.8%</span> (nhanh hơn). Phân tách khu vực cho thấy bức tranh 2 mặt: <strong>FDI vẫn xuất siêu, nhưng khu vực nội địa nhập siêu tới 20.76 tỷ USD</strong>. Nhập từ Trung Quốc <span class="num">92.5 tỷ</span> (<span class="num">+33.6%</span>) — phụ thuộc nguyên liệu gia tăng. Trong tháng 5, nửa đầu tháng nhập siêu 5.7 tỷ nhưng nửa cuối bù đắp gần <span class="num">447 triệu USD</span> — biến động nội tháng lớn.</div>
+          </div>
+          <div class="si-col-right">
+            <div class="si-section-label">📰 Tin & phân tích (4 nguồn)</div>
+        <div class="si-news-grid">
+          <div class="si-news-item">
+            <div class="si-news-head"><div class="si-news-title"><a href="https://vneconomy.vn/5-thang-can-can-thuong-mai-thien-ve-nhap-sieu.htm" target="_blank">5 tháng: Cán cân thương mại thiên về nhập siêu</a><span class="si-news-sentiment TIÊU">TIÊU</span></div><div class="si-news-meta">VnEconomy · 06/2026</div></div>
+            <div class="si-news-insight">XNK 5 tháng 445,12 tỷ USD (+25%); cán cân chuyển sang nhập siêu 13,80 tỷ USD.</div>
+          </div>
+          <div class="si-news-item">
+            <div class="si-news-head"><div class="si-news-title"><a href="https://vneconomy.vn/chuyen-gia-ly-giai-ve-hien-tuong-nhap-sieu-bat-ngo-5-thang-dau-nam.htm" target="_blank">Chuyên gia lý giải hiện tượng 'nhập siêu' bất ngờ 5 tháng</a><span class="si-news-sentiment TRUNG">TRUNG</span></div><div class="si-news-meta">VnEconomy · 06/2026</div></div>
+            <div class="si-news-insight">Nguyên nhân: nhập máy móc + nguyên liệu cho FDI mới (DQ2, bán dẫn). Chuyên gia gọi là 'nhập siêu tốt'.</div>
+          </div>
+          <div class="si-news-item">
+            <div class="si-news-head"><div class="si-news-title"><a href="https://vneconomy.vn/thang-du-thuong-mai-gan-447-trieu-usd-trong-nua-cuoi-thang-5.htm" target="_blank">Thặng dư thương mại gần 447 triệu USD trong nửa cuối tháng 5</a><span class="si-news-sentiment TRUNG">TRUNG</span></div><div class="si-news-meta">VnEconomy · 06/2026</div></div>
+            <div class="si-news-insight">Nửa cuối tháng 5 thặng dư 447 triệu USD — phần cuối tháng bù đắp một phần nhập siêu đầu tháng.</div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="si-section-label">🔗 Góc nhìn rộng hơn</div>
+        <div class="si-cross-story">Nhập siêu <span class="num">13.8 tỷ USD</span> và tỷ giá trung tâm tăng 3 tuần liên có <strong>quan hệ nhân quả rõ</strong>: nhập siêu → cầu USD tăng → tỷ giá tăng. Nhưng bức tranh chi tiết thú vị hơn: FDI vẫn xuất siêu trong khi nội địa nhập siêu tới <span class="num">20.76 tỷ USD</span> — áp lực tỷ giá chủ yếu đến từ nội địa, không phải khối ngoại. Cùng lúc, FDI đăng ký <span class="num">+34.9%</span> YoY cho thấy dòng vốn tương lai vẫn mạnh — và theo chuyên gia, nhập siêu hiện nay một phần là <strong>"nhập siêu tốt"</strong> (nhập máy móc + nguyên liệu cho nhà máy FDI mới như Dung Quất 2, bán dẫn). Nhập từ TQ <span class="num">+33.6%</span> vẫn là rủi ro phụ thuộc chuỗi cung ứng chưa giảm.</div>
+      </div>
+
+      <!-- Trade by sector -->
+      <div class="data-card">
+        <div class="dc-head"><span class="dc-name">XNK FDI vs Nội địa</span><span class="dc-flag"></span></div>
+        <div class="dc-value mono">71.7<span class="dc-unit">% FDI</span></div>
+        <div class="dc-meta"><span>FDI <strong class="mono">37.88 tỷ</strong></span><span>nội địa <strong class="mono">9.05 tỷ</strong></span></div>
+        <div class="dc-why">FDI vẫn là động lực chính xuất khẩu (71.7%). Nội địa chỉ 9.05 tỷ — cần cải thiện năng lực cạnh tranh.</div>
+      </div>
+
+      <!-- Trade by commodity -->
+      <div class="data-card signal-green">
+        <div class="dc-head"><span class="dc-name">Đa dạng hóa mặt hàng XK</span><span class="dc-flag">🟢</span></div>
+        <div class="dc-value mono pos">24<span class="dc-unit"> mặt hàng &gt;1 tỷ USD</span></div>
+        <div class="dc-meta"><span>&gt;10 tỷ USD <strong class="mono">4 mặt hàng</strong></span></div>
+        <div class="dc-why">Đa dạng hóa mặt hàng tốt — giảm rủi ro phụ thuộc.</div>
+      </div>
+
+      <!-- PANEL: Trade by market -->
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-title">🌍 Top thị trường xuất nhập khẩu</span>
+          <span class="panel-note">Nguồn: Hải quan</span>
+        </div>
+        <table class="panel-table">
+          <thead><tr><th>Thị trường</th><th>Kim ngạch (tỷ USD)</th><th>YoY</th><th>Loại</th><th>Ghi chú</th></tr></thead>
+          <tbody>
+            <tr><td>🇨🇳 Trung Quốc</td><td class="mono">92.5</td><td class="mono neg">+33.6%</td><td><span class="panel-tag TIÊU">Nhập khẩu</span></td><td>phụ thuộc nguyên liệu lớn nhất</td></tr>
+            <tr><td>🇺🇸 Mỹ</td><td>—</td><td>—</td><td><span class="panel-tag TÍCH">Xuất khẩu</span></td><td>top thị trường XK</td></tr>
+            <tr><td>🇪🇺 EU</td><td>—</td><td>—</td><td><span class="panel-tag TÍCH">Xuất khẩu</span></td><td>top thị trường XK</td></tr>
+            <tr><td>🌏 ASEAN</td><td>—</td><td>—</td><td><span class="panel-tag TRUNG">2 chiều</span></td><td>đối tác khu vực</td></tr>
+          </tbody>
+        </table>
+        <div class="panel-trend">⚠️ Nhập từ TQ +33.6% — rủi ro phụ thuộc nguyên liệu. Cần đa dạng hóa chuỗi cung ứng.</div>
+      </div>
+
+      <!-- PANEL: Global commodities -->
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-title">🛢️ Giá hàng hóa thế giới tháng 5/2026</span>
+          <span class="panel-note">Nguồn: HN Ngân hàng (Tradingeconomics)</span>
+        </div>
+        <table class="panel-table">
+          <thead><tr><th>Hàng hóa</th><th>Giá</th><th>Đơn vị</th><th>MoM</th><th>YoY</th><th>Tín hiệu</th></tr></thead>
+          <tbody>
+            <tr><td>Vàng</td><td class="mono">4,331</td><td>USD/oz</td><td class="mono pos">-7.68%</td><td class="mono pos">+30.78%</td><td><span class="panel-tag TRUNG">TRUNG</span></td></tr>
+            <tr><td>Dầu Brent</td><td class="mono">90.54</td><td>USD/bbl</td><td class="mono pos">-4.77%</td><td class="mono neg">+40.20%</td><td><span class="panel-tag TIÊU">TIÊU</span></td></tr>
+            <tr><td>Dầu WTI</td><td class="mono">87.36</td><td>USD/bbl</td><td>—</td><td>—</td><td><span class="panel-tag TIÊU">TIÊU</span></td></tr>
+            <tr><td>Đồng</td><td class="mono">6.26</td><td>USD/Lbs</td><td class="mono neg">+2.07%</td><td class="mono neg">+30.14%</td><td><span class="panel-tag TÍCH">TÍCH</span></td></tr>
+            <tr><td>Thép</td><td class="mono">3,161</td><td>CNY/T</td><td class="mono pos">-2.41%</td><td class="mono neg">+7.19%</td><td><span class="panel-tag TRUNG">TRUNG</span></td></tr>
+            <tr><td>Quặng sắt</td><td class="mono">766</td><td>$/T</td><td class="mono pos">-6.13%</td><td class="mono neg">+8.81%</td><td><span class="panel-tag TRUNG">TRUNG</span></td></tr>
+            <tr><td>Cà phê</td><td class="mono">246.50</td><td>USD/Lbs</td><td class="mono pos">-13.16%</td><td class="mono pos">-31.05%</td><td><span class="panel-tag TIÊU">TIÊU</span></td></tr>
+            <tr><td>Cao su</td><td class="mono">230.40</td><td>cents/Kg</td><td class="mono neg">+5.79%</td><td class="mono neg">+43.11%</td><td><span class="panel-tag TÍCH">TÍCH</span></td></tr>
+          </tbody>
+        </table>
+        <div class="panel-trend">💡 Insight: Dầu Brent +40% YoY (cú sốc Hormuz) → áp lực chi phí cho VN nhập khẩu năng lượng. Cà phê -31% YoY → rủi ro cho nông dân XK.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GROUP 4 — BỐI CẢNH TOÀN CẦU -->
+  <section class="group-section" id="group4">
+    <div class="group-header">
+      <span class="tag g4">04</span>
+      <h2>Bối cảnh toàn cầu — Định vị VN trong thế giới</h2>
+      <div class="divider-line"></div>
+      <span style="font-size:12px;color:var(--text-faint)">Nguồn: HN Ngân hàng (tổng hợp Tradingeconomics, Reuters, Fed/ECB/BOJ/PBOC)</span>
+    </div>
+
+    <div class="highlights">
+      <div class="highlight-box neg">
+        <div class="hl-label">🔴 TIÊU CỰC</div>
+        <ul class="hl-items">
+          <li>Đình lạm toàn cầu — phong tỏa <span class="hl-val neg">eo biển Hormuz</span></li>
+          <li>Brent <span class="hl-val neg">92 USD/thùng</span> · 10Y US yield <span class="hl-val neg">4.52%</span></li>
+        </ul>
+      </div>
+      <div class="highlight-box pos">
+        <div class="hl-label">🟢 TÍCH CỰC</div>
+        <ul class="hl-items">
+          <li>Fed giữ <span class="hl-val pos">3.50-3.75%</span> (không tăng thêm)</li>
+          <li>TT 08/2026 nới LDR cho Big4 — hỗ trợ tín dụng</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="data-grid">
+      <!-- PANEL: Global growth forecast -->
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-title">🌐 Dự báo tăng trưởng toàn cầu 2026</span>
+          <span class="panel-note">Nguồn: HN Ngân hàng (OECD, UN DESA, WEF)</span>
+        </div>
+        <table class="panel-table">
+          <thead><tr><th>Tổ chức</th><th>Tăng trưởng 2026</th><th>Lạm phát 2026</th><th>Nhận định</th></tr></thead>
+          <tbody>
+            <tr><td>OECD</td><td class="mono neg">2.8%</td><td class="mono neg">4.0%</td><td>có thể rớt xuống 2.1% nếu xung đột kéo dài</td></tr>
+            <tr><td>UN DESA</td><td class="mono neg">2.5%</td><td class="mono">2.9-5.2%</td><td>thương mại + đầu tư toàn cầu suy yếu</td></tr>
+            <tr><td>WEF (survey)</td><td colspan="3" style="color:var(--red)">90% chuyên gia dự báo tăng trưởng YẾU ĐI trong 12 tháng tới</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PANEL: Central banks -->
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-title">🏛️ Ngân hàng trung ương các nước</span>
+          <span class="panel-note">Nguồn: HN Ngân hàng</span>
+        </div>
+        <table class="panel-table">
+          <thead><tr><th>NHTW</th><th>Quốc gia</th><th>Lãi suất</th><th>Kỳ họp tới</th><th>Thái độ</th></tr></thead>
+          <tbody>
+            <tr><td>Fed</td><td>🇺🇸 Mỹ</td><td class="mono">3.50-3.75%</td><td class="mono">30/07/2026</td><td>giữ nguyên — trì hoãn cắt giảm</td></tr>
+            <tr><td>ECB</td><td>🇪🇺 Eurozone</td><td class="mono">2.0%</td><td class="mono">11/06/2026</td><td>tiến thoái lưỡng nan</td></tr>
+            <tr><td>BOJ</td><td>🇯🇵 Nhật</td><td class="mono">0.75%</td><td class="mono">16/06/2026</td><td>bảo vệ Yên</td></tr>
+            <tr><td>PBOC</td><td>🇨🇳 Trung Quốc</td><td class="mono">3.0%</td><td>—</td><td>duy trì</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PANEL: Global markets -->
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-title">📈 Chỉ số chứng khoán toàn cầu</span>
+          <span class="panel-note">Nguồn: HN Ngân hàng · tháng 5/2026</span>
+        </div>
+        <table class="panel-table">
+          <thead><tr><th>Chỉ số</th><th>MoM</th><th>YoY</th><th>Ghi chú</th></tr></thead>
+          <tbody>
+            <tr><td>S&amp;P 500</td><td class="mono pos">-0.21%</td><td class="mono pos">+71.96%</td><td>đầu tháng vượt 7.500</td></tr>
+            <tr><td>Nasdaq</td><td class="mono pos">-2.05%</td><td class="mono pos">+94.20%</td><td>hưởng lợi AI</td></tr>
+            <tr><td>Nikkei 225</td><td class="mono neg">+6.18%</td><td class="mono neg">+110.45%</td><td>kỷ lục mới</td></tr>
+            <tr><td>DAX</td><td class="mono neg">+1.73%</td><td class="mono neg">+54.84%</td><td>—</td></tr>
+            <tr><td>Shanghai</td><td class="mono pos">-3.64%</td><td class="mono pos">+25.33%</td><td>đi ngược xu hướng</td></tr>
+            <tr><td>Hang Seng</td><td class="mono pos">-5.42%</td><td class="mono pos">+29.34%</td><td>—</td></tr>
+          </tbody>
+        </table>
+        <div class="panel-trend">💡 Mỹ/Nhật bứt phá nhờ AI; TQ đi ngược — áp lực chốt lời + thách thức vĩ mô nội địa.</div>
+      </div>
+
+      <!-- Geopolitical -->
+      <div class="data-card signal-red">
+        <div class="dc-head"><span class="dc-name">Rủi ro địa chính trị</span><span class="dc-flag">🔴</span></div>
+        <div class="dc-value mono neg">⚠️ CAO</div>
+        <div class="dc-why">Đình lạm — xung đột Trung Đông + phong tỏa eo biển Hormuz → cú sốc năng lượng (gián đoạn 6.6-9 triệu thùng/ngày).</div>
+      </div>
+
+      <!-- Policy actions VN -->
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-title">📋 Động thái chính sách VN tháng 5/2026</span>
+          <span class="panel-note">Nguồn: HN Ngân hàng</span>
+        </div>
+        <table class="panel-table">
+          <thead><tr><th>Văn bản</th><th>Ngày</th><th>Tác động</th></tr></thead>
+          <tbody>
+            <tr><td><strong>TT 08/2026/TT-NHNN</strong></td><td class="mono">15/5</td><td>20% tiền gửi KBNN tính vào LDR → Big4 khơi thông vốn</td></tr>
+            <tr><td>CV 4551/NHNN-CSTT</td><td>—</td><td>loại trừ nhà ở xã hội + BĐS KCN ra giới hạn tín dụng BĐS</td></tr>
+            <tr><td>CV 3972 + 4190</td><td>—</td><td>yêu cầu NHTM tiết giảm chi phí để giảm lãi suất cho vay</td></tr>
+            <tr><td><strong>TT 11-21/2026/TT-NHNN</strong></td><td>—</td><td>10 Thông tư mới — siết an toàn vốn + chi phí tuân thủ tăng</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Agriculture -->
+      <div class="data-card">
+        <div class="dc-head"><span class="dc-name">Tổng quan Nông nghiệp</span><span class="dc-flag"></span></div>
+        <div class="dc-value mono">2,932<span class="dc-unit"> nghìn ha lúa ĐX</span></div>
+        <div class="dc-meta"><span>thiên tai <strong class="mono neg">924 tỷ VND</strong></span></div>
+        <div class="dc-why">Thiệt hại thiên tai gấp 2.2 lần cùng kỳ — áp lực khu vực I.</div>
+      </div>
+    </div>
+  </section>
+
+
+
+  <!-- GROUP 5 — TỔNG HỢP -->
+  <section class="group-section" id="group5">
+    <div class="group-header">
+      <span class="tag g5">05</span>
+      <h2>Tổng hợp — Stance · Rủi ro · Động lực</h2>
+    </div>
+
+  <!-- RỦI RO / ĐỘNG LỰC -->
+  <div class="section-title">
+    <h2>⚠️ Rủi ro &amp; 🚀 Động lực</h2>
+    <div class="divider-line"></div>
+  </div>
+  <div class="rc-grid">
+    <div class="rc-box risks">
+      <div class="rc-title">⚠️ RỦI RO (hawkish)</div>
+      <div class="rc-item"><span class="rc-level high">Cao</span>LSTP 10Y +7bp trong 4 tuần — giá tiền dài hạn đắt lên, áp lực chi phí vốn DN</div>
+      <div class="rc-item"><span class="rc-level medium">Trung bình</span>DXY 101.4 + US 10Y 4.37% (Fed hawkish nhẹ) → áp lực tỷ giá VND</div>
+      <div class="rc-item"><span class="rc-level medium">Trung bình</span>LNH ON hồi nhẹ W26 (+9% WoW) — có thể đảo chiều xu hướng giảm</div>
+    </div>
+    <div class="rc-box catalysts">
+      <div class="rc-title">🚀 ĐỘNG LỰC (dovish)</div>
+      <div class="rc-item"><span class="rc-level high">Cao</span>LNH ON -37% trong 4 tuần (6.81% → 4.26%) — NHNN bơm tiền dồi dào</div>
+      <div class="rc-item"><span class="rc-level medium">Trung bình</span>Tỷ giá TM sát trung tâm (±0.1%) — NHNN kiểm soát tốt</div>
+      <div class="rc-item"><span class="rc-level medium">Trung bình</span>Slope 10Y-2Y mở rộng (92bp) — curve bình thường, không inversion</div>
+    </div>
+  </div>
+
+  <!-- ĐIỂM CHÍNH -->
+  <div class="section-title">
+    <h2>⭐ Điểm chính tuần 26/2026</h2>
+    <div class="divider-line"></div>
+  </div>
+  <div class="takeaways">
+    <ol>
+      <li><strong>⭐ Stance tuần này: THẮN CHẶT.</strong> LNH ON giảm mạnh 4 tuần (dovish) nhưng LSTP 10Y tăng 3 tuần liên tiếp (hawkish) — hai đầu câu chuyện tiền tệ đi ngược chiều nhau.</li>
+      <li><strong>Curve dốc lên:</strong> LSTP 10Y-2Y = 92bp (4.40% - 3.48%) — thị trường định giá lạm phát/kỳ vọng tăng dài hạn trong khi ngắn hạn vẫn rẻ.</li>
+      <li><strong>LNH ON hồi nhẹ W26</strong> (+9% WoW sau 3 tuần giảm) — theo dõi xem có đảo chiều xu hướng dovish hay không.</li>
+    </ol>
+  </div>
+  </section>
+
+  <!-- FOOTER -->
+  <div class="disclaimer">
+    ⚠️ <strong>Miễn trừ trách nhiệm:</strong> Báo cáo lãi suất &amp; tiền tệ tham khảo cá nhân. Số liệu từ 3 nguồn chính thức (SBV, VBMA, VNBA). Áp nguyên tắc Nhất quán thời gian (chốt dữ liệu 26/06/2026). <strong>Không phải lời khuyên đầu tư</strong>.
+  </div>
+  <footer>
+    <div>📊 Báo cáo vĩ mô VN · Tháng 5/2026 · Tạo ngày 21/06/2026</div>
+    <div style="margin-top:6px">Nguồn: <a href="https://www.nso.gov.vn" target="_blank">TCTK</a> · <a href="https://www.customs.gov.vn" target="_blank">Hải quan</a> · <a href="https://www.pmi.spglobal.com" target="_blank">S&amp;P PMI</a> · <a href="https://vbma.org.vn" target="_blank">HTT Trái phiếu</a> · <a href="https://vnba.org.vn" target="_blank">HN Ngân hàng</a></div>
+  </footer>
+
+</div>
+
+<!-- CHART MODAL -->
+<div class="modal" id="chartModal">
+  <div class="modal-content">
+    <div class="modal-head">
+      <h3 id="modalTitle">Dữ liệu lịch sử</h3>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-chart-wrap"><canvas id="modalChart"></canvas></div>
+  </div>
+</div>
+
+<script>
+// Dữ liệu lịch sử — TỰ TÍCH LŨY qua các tháng.
+// Template DEMO bắt đầu TRỐNG đúng spec (xem SKILL.md "History rules").
+// Khi skill chạy thật: data tự append vào history.json từ cache kỳ trước.
+// → Mọi nút [📊] sẽ ẩn cho đến khi history đủ 6+ điểm (feature ngủ chờ data).
+const history={
+  series:{}
+};
+const INDICATOR_LABELS={
+  cpi_yoy_pct:'CPI YoY (%)',pmi:'PMI Sản xuất',iip_yoy_pct:'IIP YoY (%)',
+  trade_balance:'Cán cân thương mại (tỷ USD)',exports:'Xuất khẩu (tỷ USD)',
+  imports:'Nhập khẩu (tỷ USD)',fdi_disbursed:'FDI thực hiện (tỷ USD)',
+  interbank_on:'Lãi suất LNH qua đêm (%)',fx_central:'Tỷ giá trung tâm (VND/USD)',
+  vn_index:'VN-Index',gold:'Vàng thế giới (USD/oz)',oil_brent:'Dầu Brent (USD/thùng)',
+  us_10y:'Lợi suất TP Mỹ 10 năm (%)'
+};
+
+Chart.defaults.color='#8b8ba7';
+Chart.defaults.font.family="'Inter',sans-serif";
+Chart.defaults.borderColor='rgba(139,92,246,0.08)';
+
+let modalChart=null;
+function openModal(key){
+  const series=history.series[key]||[];
+  const label=INDICATOR_LABELS[key]||key;
+  document.getElementById('modalTitle').textContent=label+' — Dữ liệu lịch sử';
+  document.getElementById('chartModal').classList.add('active');
+  if(modalChart){modalChart.destroy();modalChart=null;}
+  document.getElementById('modalChart').style.display='block';
+  const ctx=document.getElementById('modalChart').getContext('2d');
+  const grad=ctx.createLinearGradient(0,0,0,280);
+  grad.addColorStop(0,'rgba(236,72,153,0.4)');
+  grad.addColorStop(1,'rgba(236,72,153,0)');
+  modalChart=new Chart(ctx,{
+    type:'line',
+    data:{labels:series.map(s=>s.month),datasets:[{
+      label:label,data:series.map(s=>s.value),
+      borderColor:'#ec4899',backgroundColor:grad,borderWidth:3,tension:0.4,fill:true,
+      pointRadius:6,pointBackgroundColor:'#ec4899',pointBorderColor:'#fff',pointBorderWidth:2
+    }]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{x:{grid:{color:'rgba(139,92,246,0.06)'}},
+              y:{grid:{color:'rgba(139,92,246,0.06)'}}}}
+  });
+}
+function closeModal(){
+  document.getElementById('chartModal').classList.remove('active');
+  if(modalChart){modalChart.destroy();modalChart=null;}
+}
+
+// ẨN nút đồ thị nếu lịch sử < 6 điểm
+const MIN_POINTS_FOR_CHART=6;
+document.querySelectorAll('.dc-chart-btn').forEach(btn=>{
+  const key=btn.dataset.indicator;
+  const series=history.series[key]||[];
+  if(series.length<MIN_POINTS_FOR_CHART){
+    btn.style.display='none';
+  }else{
+    btn.addEventListener('click',()=>openModal(key));
+  }
+});
+document.getElementById('chartModal').addEventListener('click',e=>{
+  if(e.target.id==='chartModal') closeModal();
+});
+
+// YIELD CURVE chart (panel cố định, không cần history)
+new Chart(document.getElementById('yieldCurve'),{
+  type:'line',
+  data:{labels:['1 năm','5 năm','10 năm'],datasets:[{
+    label:'Lợi suất TPCP (%)',
+    data:[3.57,4.27,4.47],
+    borderColor:'#a855f7',backgroundColor:'rgba(168,85,247,0.2)',
+    borderWidth:3,tension:0.3,fill:true,
+    pointRadius:6,pointBackgroundColor:'#a855f7',pointBorderColor:'#fff',pointBorderWidth:2
+  }]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:c=>'Lợi suất: '+c.parsed.y+'%'}}},
+    scales:{x:{grid:{display:false}},
+            y:{min:3,max:5,ticks:{callback:v=>v+'%'},grid:{color:'rgba(139,92,246,0.06)'}}}}
+});
+
+// NAV tabs
+document.querySelectorAll('.nav-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.group-section').forEach(s=>s.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.target).classList.add('active');
+    window.scrollTo({top:document.querySelector('.nav-tabs').offsetTop-20,behavior:'smooth'});
+  });
+});
+</script>
+</body>
+</html>
